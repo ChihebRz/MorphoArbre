@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Arabic Morphological Engine",
+  "description": "A sophisticated linguistic tool for Arabic root-pattern derivation, featuring an AVL tree for root management and a manual hash table for morphological schemes.",
+  "requestFramePermissions": []
+}
