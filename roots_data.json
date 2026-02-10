@@ -1,0 +1,61 @@
+[
+  {
+    "root": "أكل",
+    "derived_words": [
+      {
+        "word": "مَأْكُول",
+        "frequency": 1
+      },
+      {
+        "word": "أَكَلَ",
+        "frequency": 1
+      },
+      {
+        "word": "أَاكِل",
+        "frequency": 1
+      },
+      {
+        "word": "اأْتَكَلَ",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "بقي",
+    "derived_words": [
+      {
+        "word": "مَبْقُوي",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "جلس",
+    "derived_words": [
+      {
+        "word": "اجْتَلَسَ",
+        "frequency": 1
+      },
+      {
+        "word": "اجْلَس",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "خرج",
+    "derived_words": []
+  },
+  {
+    "root": "درس",
+    "derived_words": []
+  },
+  {
+    "root": "رسم",
+    "derived_words": []
+  },
+  {
+    "root": "كتب",
+    "derived_words": []
+  }
+]

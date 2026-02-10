@@ -1,5 +1,7 @@
-
+ 
 import re
+import json
+import os
 from typing import List, Optional, Dict
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -173,16 +175,111 @@ class HashTable:
     def get_all(self) -> List[MorphologicalScheme]:
         return [s for b in self.buckets for s in b]
 
-# --- App State ---
+# --- App State & Persistence ---
 
 root_tree = AVLTree()
 scheme_table = HashTable()
 
-# Initial Data
-for r in ["كتب", "رسم", "درس", "خرج"]: root_tree.insert(r)
-scheme_table.put(MorphologicalScheme(id="فعل", pattern="فَعَلَ", transformationRule="Base"))
-scheme_table.put(MorphologicalScheme(id="فاعل", pattern="فَاعِل", transformationRule="Agent"))
-scheme_table.put(MorphologicalScheme(id="مفعول", pattern="مَفْعُول", transformationRule="Patient"))
+ROOTS_DATA_FILE = "roots_data.json"
+SCHEMES_DATA_FILE = "schemes_data.json"
+
+
+def save_roots_to_disk():
+    """Persist all roots (with historique) to a JSON file."""
+    data = []
+    for r in root_tree.get_all():
+        # r is RootNodeData
+        data.append({
+            "root": r.root,
+            "derived_words": [
+                {"word": dw.word, "frequency": dw.frequency}
+                for dw in r.derived_words
+            ]
+        })
+    with open(ROOTS_DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def load_roots_from_disk():
+    """Load roots (and historique) from disk if the file exists."""
+    if not os.path.exists(ROOTS_DATA_FILE):
+        return False
+    try:
+        with open(ROOTS_DATA_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return False
+
+    for item in data:
+        root_str = item.get("root")
+        if not root_str:
+            continue
+        root_tree.insert(root_str)
+        node_data = root_tree.search(root_str)
+        if not node_data:
+            continue
+        node_data.derived_words = [
+            DerivedWord(word=dw.get("word", ""), frequency=dw.get("frequency", 1))
+            for dw in item.get("derived_words", [])
+        ]
+    return True
+
+
+def init_roots_in_memory():
+    """Initialize default roots when no saved data exists."""
+    for r in ["كتب", "رسم", "درس", "خرج"]:
+        root_tree.insert(r)
+
+
+def save_schemes_to_disk():
+    """Persist all schemes (hash table) to a JSON file."""
+    data = []
+    for s in scheme_table.get_all():
+        data.append({
+            "id": s.id,
+            "pattern": s.pattern,
+            "transformationRule": s.transformationRule,
+        })
+    with open(SCHEMES_DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def load_schemes_from_disk() -> bool:
+    """Load schemes from disk if the file exists."""
+    if not os.path.exists(SCHEMES_DATA_FILE):
+        return False
+    try:
+        with open(SCHEMES_DATA_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return False
+
+    for item in data:
+        sid = item.get("id")
+        pattern = item.get("pattern")
+        rule = item.get("transformationRule", "")
+        if not sid or not pattern:
+            continue
+        scheme_table.put(MorphologicalScheme(id=sid, pattern=pattern, transformationRule=rule))
+    return True
+
+
+def init_schemes_in_memory():
+    """Initialize default schemes in the hash table when none are saved."""
+    scheme_table.put(MorphologicalScheme(id="فعل", pattern="فَعَلَ", transformationRule="Base"))
+    scheme_table.put(MorphologicalScheme(id="فاعل", pattern="فَاعِل", transformationRule="Agent"))
+    scheme_table.put(MorphologicalScheme(id="مفعول", pattern="مَفْعُول", transformationRule="Patient"))
+
+
+# On startup: try to load roots from disk, otherwise use defaults and save them
+if not load_roots_from_disk():
+    init_roots_in_memory()
+    save_roots_to_disk()
+
+# On startup: try to load schemes from disk, otherwise use defaults and save them
+if not load_schemes_from_disk():
+    init_schemes_in_memory()
+    save_schemes_to_disk()
 
 # --- API Endpoints ---
 
@@ -198,6 +295,7 @@ def get_roots_visual():
 def add_root(root: str):
     if len(root) != 3: raise HTTPException(400, "Root must be 3 chars")
     root_tree.insert(root)
+    save_roots_to_disk()
     return {"status": "ok"}
 
 @app.get("/api/schemes")
@@ -207,6 +305,7 @@ def get_schemes():
 @app.post("/api/schemes")
 def add_scheme(scheme: MorphologicalScheme):
     scheme_table.put(scheme)
+    save_schemes_to_disk()
     return {"status": "ok"}
 
 @app.post("/api/generate")
@@ -214,6 +313,15 @@ def generate(root: str, scheme_id: str):
     scheme = scheme_table.get(scheme_id)
     if not scheme: raise HTTPException(404, "Scheme not found")
     word = apply_pattern(root, scheme.pattern)
+    # Enregistrer aussi dans l'historique des racines pour un historique dynamique
+    root_data = root_tree.search(root)
+    if root_data:
+        existing = next((d for d in root_data.derived_words if d.word == word), None)
+        if existing:
+            existing.frequency += 1
+        else:
+            root_data.derived_words.append(DerivedWord(word=word))
+        save_roots_to_disk()
     return {"word": word}
 
 @app.post("/api/validate")
@@ -233,8 +341,11 @@ def validate(word: str, root_str: str):
         root_data = root_tree.search(root_str)
         if root_data:
             existing = next((d for d in root_data.derived_words if d.word == word), None)
-            if existing: existing.frequency += 1
-            else: root_data.derived_words.append(DerivedWord(word=word))
+            if existing:
+                existing.frequency += 1
+            else:
+                root_data.derived_words.append(DerivedWord(word=word))
+            save_roots_to_disk()
         return {"isValid": True, "scheme": found_scheme}
     
     return {"isValid": False}

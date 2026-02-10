@@ -44,10 +44,18 @@ const App: React.FC = () => {
     try {
       const [rRes, sRes, vRes] = await Promise.all([
         fetch(`${API_BASE}/roots`),
-        fetch(`${API_BASE}/schemes`),
+        fetch(`${API_BASE}/schemes`), 
         fetch(`${API_BASE}/roots/visual`)
       ]);
-      setRoots(await rRes.json());
+
+      // Normalise backend data so UI always has derivedWords[]
+      const rawRoots = await rRes.json();
+      const normalizedRoots: RootNodeData[] = rawRoots.map((r: any) => ({
+        root: r.root,
+        derivedWords: r.derivedWords || r.derived_words || [],
+      }));
+
+      setRoots(normalizedRoots);
       setSchemes(await sRes.json());
       setTreeVisual(await vRes.json());
     } catch (e) {
@@ -215,12 +223,12 @@ const App: React.FC = () => {
                    value={newScheme.rule}
                    onChange={e => setNewScheme({...newScheme, rule: e.target.value})}
                  />
-              </div>
+               </div>
               <button 
                 onClick={handleAddScheme}
                 className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
               >
-                <Save className="w-4 h-4" /> Sauvegarder dans la Hash Table
+                <Save className="w-4 h-4" /> {schemes.some(s => s.id === newScheme.id) ? 'Mettre à jour le Schème' : 'Sauvegarder dans la Hash Table'}
               </button>
            </div>
 
@@ -239,7 +247,11 @@ const App: React.FC = () => {
                  </thead>
                  <tbody className="divide-y divide-slate-100">
                     {schemes.map(s => (
-                       <tr key={s.id} className="hover:bg-slate-50 transition-colors">
+                       <tr
+                         key={s.id}
+                         className="hover:bg-slate-50 transition-colors cursor-pointer"
+                         onClick={() => setNewScheme({ id: s.id, pattern: s.pattern, rule: s.transformationRule })}
+                       >
                           <td className="px-4 py-4 font-mono font-bold text-blue-600">{s.id}</td>
                           <td className="px-4 py-4 font-arabic text-xl">{s.pattern}</td>
                           <td className="px-4 py-4 text-slate-500 text-sm">{s.transformationRule}</td>
@@ -282,21 +294,42 @@ const App: React.FC = () => {
            </div>
            
            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-full">
-              <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><History className="w-4 h-4 text-slate-400" /> Historique (Roots Context)</h4>
-              <div className="flex-1 overflow-y-auto space-y-3">
-                 {/* Fixed: Use derivedWords instead of derived_words to match RootNodeData interface */}
-                 {roots.filter(r => r.derivedWords.length > 0).map(r => (
-                    <div key={r.root} className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                       <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">{r.root}</p>
-                       <div className="flex flex-wrap gap-1">
-                          {/* Fixed: Use derivedWords instead of derived_words to match RootNodeData interface */}
-                          {r.derivedWords.map((dw, i) => (
-                             <span key={i} className="bg-white border border-slate-200 text-blue-600 px-2 py-1 rounded-md text-sm font-arabic">{dw.word}</span>
-                          ))}
-                       </div>
-                    </div>
-                 ))}
-              </div>
+             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+               <History className="w-4 h-4 text-slate-400" /> Générateur
+             </h4>
+
+             <div className="flex-1 overflow-y-auto space-y-3">
+               
+               {roots
+                 .filter(r => (r.derivedWords?.length || 0) > 0)
+                 .map(r => (
+                   <div key={r.root} className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+
+                     <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">
+                       {r.root}
+                     </p>
+
+                     <div className="flex flex-wrap gap-1">
+                       {(r.derivedWords || []).map((dw, i) => (
+                         <span
+                           key={i}
+                           className="bg-white border border-slate-200 text-blue-600 px-2 py-1 rounded-md text-sm font-arabic"
+                         >
+                           {dw.word}
+                         </span>
+                       ))}
+                     </div>
+
+                   </div>
+               ))}
+
+               {roots.every(r => (r.derivedWords?.length || 0) === 0) && (
+                 <div className="text-center py-12 text-slate-400">
+                   Aucun mot généré pour le moment.
+                 </div>
+               )}
+
+             </div>
            </div>
         </div>
       )}

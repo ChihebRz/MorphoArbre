@@ -1,0 +1,22 @@
+[
+  {
+    "id": "مفعول",
+    "pattern": "مَفْعُول",
+    "transformationRule": "Patient"
+  },
+  {
+    "id": "فعل",
+    "pattern": "فَعَلَ",
+    "transformationRule": "Base"
+  },
+  {
+    "id": "أمر",
+    "pattern": "افْعَل",
+    "transformationRule": "Ordre"
+  },
+  {
+    "id": "فاعل",
+    "pattern": "فَاعِل",
+    "transformationRule": "Agent"
+  }
+]
