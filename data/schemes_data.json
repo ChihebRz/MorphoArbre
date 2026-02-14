@@ -1,13 +1,13 @@
 [
   {
+    "id": "مفعول",
+    "pattern": "مَفْعُول",
+    "transformationRule": "اسم المفعول (Patient Noun)"
+  },
+  {
     "id": "فعل",
     "pattern": "فَعَلَ",
     "transformationRule": "المصدر (Infinitive)"
-  },
-  {
-    "id": "يفعل",
-    "pattern": "يَفْعَلُ",
-    "transformationRule": "صيغة المضارع (Present)"
   },
   {
     "id": "أمر",
@@ -15,13 +15,13 @@
     "transformationRule": "صيغة الأمر (Imperative)"
   },
   {
+    "id": "يفعل",
+    "pattern": "يَفْعَلُ",
+    "transformationRule": "صيغة المضارع (Present)"
+  },
+  {
     "id": "فاعل",
     "pattern": "فَاعِل",
     "transformationRule": "اسم الفاعل (Agent Noun)"
-  },
-  {
-    "id": "مفعول",
-    "pattern": "مَفْعُول",
-    "transformationRule": "اسم المفعول (Patient Noun)"
   }
 ]

@@ -2,18 +2,32 @@
 export interface DerivedWord {
   word: string;
   frequency: number;
-  timestamp: number;
+  timestamp?: number;
 }
 
 export interface RootNodeData {
-  root: string; // The triliteral root, e.g., "كتب"
+  root: string;
   derivedWords: DerivedWord[];
+  verb_type?: string;
 }
 
 export interface MorphologicalScheme {
-  id: string; // Unique identifier (the name, e.g., "مفعول")
-  pattern: string; // The abstract representation, e.g., "مفْعول"
-  transformationRule: string; // A description or code for the rule
+  id: string;
+  pattern: string;
+  transformationRule: string;
+}
+
+export interface VerbTypeTransformation {
+  regles: string[];
+  exemples?: string[];
+}
+
+export interface VerbTypeInfo {
+  type: string;
+  exemple: string;
+  probleme: string;
+  caracteristiques: string;
+  transformations: VerbTypeTransformation;
 }
 
 export enum TabType {

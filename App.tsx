@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Layout from './components/Layout';
-import { TabType, MorphologicalScheme, RootNodeData } from './types';
+import { TabType, MorphologicalScheme, RootNodeData, VerbTypeInfo } from './types';
 import { TreeView } from './components/TreeView';
 import { 
   FileText, 
@@ -18,7 +18,9 @@ import {
   Trash2,
   AlertCircle,
   Save,
-  Loader2
+  Loader2,
+  BookOpen,
+  Zap
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8000/api';
@@ -27,25 +29,28 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>(TabType.DASHBOARD);
   const [roots, setRoots] = useState<RootNodeData[]>([]);
   const [schemes, setSchemes] = useState<MorphologicalScheme[]>([]);
+  const [verbTypes, setVerbTypes] = useState<VerbTypeInfo[]>([]);
   const [treeVisual, setTreeVisual] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedRoot, setSelectedRoot] = useState<RootNodeData | null>(null);
 
   // Form States
   const [genRoot, setGenRoot] = useState("");
   const [genSchemeId, setGenSchemeId] = useState("");
-  const [genResult, setGenResult] = useState<string | null>(null);
+  const [genResult, setGenResult] = useState<any>(null);
   const [valWord, setValWord] = useState("");
   const [valRoot, setValRoot] = useState("");
-  const [valResult, setValResult] = useState<{ isValid: boolean; scheme?: string } | null>(null);
+  const [valResult, setValResult] = useState<any>(null);
   const [newScheme, setNewScheme] = useState({ id: '', pattern: '', rule: '' });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [rRes, sRes, vRes] = await Promise.all([
+      const [rRes, sRes, vRes, verbRes] = await Promise.all([
         fetch(`${API_BASE}/roots`),
         fetch(`${API_BASE}/schemes`), 
-        fetch(`${API_BASE}/roots/visual`)
+        fetch(`${API_BASE}/roots/visual`),
+        fetch(`${API_BASE}/verb-types`)
       ]);
 
       // Normalise backend data so UI always has derivedWords[]
@@ -53,11 +58,13 @@ const App: React.FC = () => {
       const normalizedRoots: RootNodeData[] = rawRoots.map((r: any) => ({
         root: r.root,
         derivedWords: r.derivedWords || r.derived_words || [],
+        verb_type: r.verb_type
       }));
 
       setRoots(normalizedRoots);
       setSchemes(await sRes.json());
       setTreeVisual(await vRes.json());
+      setVerbTypes(await verbRes.json());
     } catch (e) {
       console.error("Backend connection failed", e);
     } finally {
@@ -93,7 +100,7 @@ const App: React.FC = () => {
     setLoading(true);
     const res = await fetch(`${API_BASE}/generate?root=${encodeURIComponent(genRoot)}&scheme_id=${encodeURIComponent(genSchemeId)}`, { method: 'POST' });
     const data = await res.json();
-    setGenResult(data.word);
+    setGenResult(data);
     fetchData(); // Refresh history
   };
 
@@ -106,63 +113,89 @@ const App: React.FC = () => {
     fetchData(); // Refresh history
   };
 
+  const getVerbTypeInfo = (type: string) => {
+    return verbTypes.find(v => v.type === type);
+  };
+
   return (
     <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
       
       {activeTab === TabType.DASHBOARD && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4" dir="rtl">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-4">
                 <div className="bg-emerald-100 p-3 rounded-xl text-emerald-600"><Database className="w-6 h-6" /></div>
                 {loading && <Loader2 className="w-4 h-4 animate-spin text-slate-300" />}
               </div>
               <h3 className="text-3xl font-bold text-slate-800">{roots.length}</h3>
-              <p className="text-slate-500 text-sm mt-1">Racines (Python AVL)</p>
+              <p className="text-slate-500 text-sm mt-1">الجذور (AVL Python)</p>
             </div>
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-4">
                 <div className="bg-indigo-100 p-3 rounded-xl text-indigo-600"><Settings2 className="w-6 h-6" /></div>
               </div>
               <h3 className="text-3xl font-bold text-slate-800">{schemes.length}</h3>
-              <p className="text-slate-500 text-sm mt-1">Schèmes (Python Hash)</p>
+              <p className="text-slate-500 text-sm mt-1">الأوزان (Hash Python)</p>
             </div>
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-4">
-                <div className="bg-amber-100 p-3 rounded-xl text-amber-600"><BrainCircuit className="w-6 h-6" /></div>
+                <div className="bg-amber-100 p-3 rounded-xl text-amber-600"><BookOpen className="w-6 h-6" /></div>
               </div>
-              <h3 className="text-3xl font-bold text-slate-800">Dynamic</h3>
-              <p className="text-slate-500 text-sm mt-1">Python API Connected</p>
+              <h3 className="text-3xl font-bold text-slate-800">{verbTypes.length}</h3>
+              <p className="text-slate-500 text-sm mt-1">أنواع الأفعال</p>
+            </div>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="bg-blue-100 p-3 rounded-xl text-blue-600"><Zap className="w-6 h-6" /></div>
+              </div>
+              <h3 className="text-3xl font-bold text-slate-800">API</h3>
+              <p className="text-slate-500 text-sm mt-1">FastAPI مفعل</p>
             </div>
           </div>
 
-          <div className="bg-blue-600 rounded-2xl p-8 text-white shadow-xl shadow-blue-200 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold">Moteur Morphologique Backend</h2>
-              <p className="opacity-90 max-w-lg">Le serveur Python gère désormais les algorithmes complexes, assurant une validation exacte et une dérivation instantanée.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-8 text-white shadow-xl">
+              <div className="space-y-2 mb-6">
+                <h2 className="text-2xl font-bold">محرك التشكيل الصرفي</h2>
+                <p className="opacity-90">خادم Python يدير الخوارزميات المعقدة والتحويلات الصرفية.</p>
+              </div>
+              <button 
+                onClick={() => setActiveTab(TabType.VALIDATOR)}
+                className="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-slate-50 transition-colors"
+              >
+                اختبر الأفعال ← 
+              </button>
             </div>
-            <button 
-              onClick={() => setActiveTab(TabType.VALIDATOR)}
-              className="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-slate-50 transition-colors shrink-0"
-            >
-              Tester la Validation
-            </button>
+
+            <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-8 text-white shadow-xl">
+              <div className="space-y-2 mb-6">
+                <h2 className="text-2xl font-bold">أنواع الأفعال الضعيفة</h2>
+                <p className="opacity-90">دعم كامل لاكتشاف الأفعال والقواعس الصرفية.</p>
+              </div>
+              <button 
+                onClick={() => setActiveTab(TabType.ROOTS)}
+                className="bg-white text-emerald-600 px-6 py-3 rounded-xl font-bold hover:bg-slate-50 transition-colors"
+              >
+                الجذور والأنواع ←
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {activeTab === TabType.ROOTS && (
-        <div className="space-y-6">
+        <div className="space-y-6" dir="rtl">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
              <div>
-                <h3 className="text-lg font-bold text-slate-800">Gestion des Racines</h3>
-                <p className="text-sm text-slate-500">Ajout dynamique dans l'arbre AVL Python.</p>
+                <h3 className="text-lg font-bold text-slate-800">إدارة الجذور</h3>
+                <p className="text-sm text-slate-500">إضافة ديناميكية في شجرة AVL مع الكشف التلقائي عن نوع الفعل.</p>
              </div>
              <div className="flex gap-2">
                 <input 
                   type="text" 
                   id="rootInput"
-                  placeholder="Ex: كتب"
+                  placeholder="مثال: كتب"
                   className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-right font-arabic text-lg w-40 outline-none focus:ring-2 focus:ring-blue-500"
                   maxLength={3}
                   onKeyDown={(e) => {
@@ -189,7 +222,7 @@ const App: React.FC = () => {
             <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <BrainCircuit className="w-4 h-4 text-blue-500" />
-                <span className="text-xs font-bold text-slate-600 uppercase">Structure AVL (Server-Side)</span>
+                <span className="text-xs font-bold text-slate-600 uppercase">خادم بنية AVL</span>
               </div>
               {loading && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
             </div>
@@ -197,28 +230,90 @@ const App: React.FC = () => {
                <TreeView data={treeVisual} />
             </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {roots.map(r => {
+              const verbInfo = getVerbTypeInfo(r.verb_type || '');
+              return (
+                <div
+                  key={r.root}
+                  className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-300 cursor-pointer transition-all"
+                  onClick={() => setSelectedRoot(r)}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h4 className="text-2xl font-arabic font-bold text-slate-800">{r.root}</h4>
+                      <p className="text-xs text-slate-500 mt-1">نوع الفعل: {r.verb_type || 'غير معروف'}</p>
+                    </div>
+                    <div className="bg-blue-100 p-2 rounded-lg">
+                      <BookOpen className="w-5 h-5 text-blue-600" />
+                    </div>
+                  </div>
+                  
+                  {verbInfo && (
+                    <div className="bg-amber-50 border-l-4 border-amber-400 p-3 rounded mb-4">
+                      <p className="text-xs font-bold text-amber-900">{verbInfo.caracteristiques}</p>
+                      <p className="text-xs text-amber-700 mt-1">المثال: {verbInfo.exemple}</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span>{(r.derivedWords?.length || 0)} منشتقات</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {selectedRoot && (
+            <div className="bg-white p-6 rounded-2xl shadow-lg border border-blue-200 fixed bottom-6 right-6 max-w-md">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h4 className="text-xl font-arabic font-bold text-slate-800">{selectedRoot.root}</h4>
+                  <p className="text-sm text-slate-600 mt-1">{selectedRoot.verb_type}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedRoot(null)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="space-y-3">
+                <h5 className="font-bold text-slate-700">المنشتقات:</h5>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {(selectedRoot.derivedWords || []).map((dw, i) => (
+                    <div key={i} className="bg-slate-50 p-2 rounded text-right">
+                      <p className="font-arabic text-sm">{dw.word}</p>
+                      <p className="text-xs text-slate-500">{dw.frequency}x</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {activeTab === TabType.SCHEMES && (
-        <div className="space-y-6">
+        <div className="space-y-6" dir="rtl">
            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <h3 className="text-lg font-bold text-slate-800 mb-4">Nouveau Schème (Hash Bucket)</h3>
+              <h3 className="text-lg font-bold text-slate-800 mb-4">وزن صرفي جديد</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                  <input 
-                   placeholder="ID (ex: اسم_آلة)" 
+                   placeholder="المعرّف (مثل: اسم_آلة)" 
                    className="bg-slate-50 p-3 rounded-xl border border-slate-200"
                    value={newScheme.id}
                    onChange={e => setNewScheme({...newScheme, id: e.target.value})}
                  />
                  <input 
-                   placeholder="Patron (ex: مِفْعَال)" 
+                   placeholder="الوزن (مثل: مِفْعَال)" 
                    className="bg-slate-50 p-3 rounded-xl border border-slate-200 font-arabic text-xl text-right"
                    value={newScheme.pattern}
                    onChange={e => setNewScheme({...newScheme, pattern: e.target.value})}
                  />
                  <input 
-                   placeholder="Usage" 
+                   placeholder="الاستخدام" 
                    className="bg-slate-50 p-3 rounded-xl border border-slate-200"
                    value={newScheme.rule}
                    onChange={e => setNewScheme({...newScheme, rule: e.target.value})}
@@ -228,21 +323,21 @@ const App: React.FC = () => {
                 onClick={handleAddScheme}
                 className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
               >
-                <Save className="w-4 h-4" /> {schemes.some(s => s.id === newScheme.id) ? 'Mettre à jour le Schème' : 'Sauvegarder dans la Hash Table'}
+                <Save className="w-4 h-4" /> {schemes.some(s => s.id === newScheme.id) ? 'تحديث الوزن' : 'حفظ في جدول Hash'}
               </button>
            </div>
 
            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
               <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center justify-between">
-                Schèmes Actuels
+                الأوزان الحالية
                 {loading && <Loader2 className="w-4 h-4 animate-spin text-slate-400" />}
               </h3>
-              <table className="w-full text-left">
+              <table className="w-full text-right">
                  <thead className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
                     <tr>
-                       <th className="px-4 py-3">ID</th>
-                       <th className="px-4 py-3">Patron</th>
-                       <th className="px-4 py-3">Règle</th>
+                       <th className="px-4 py-3 text-right">المعرّف</th>
+                       <th className="px-4 py-3 text-right">الوزن</th>
+                       <th className="px-4 py-3 text-right">القاعدة</th>
                     </tr>
                  </thead>
                  <tbody className="divide-y divide-slate-100">
@@ -264,29 +359,30 @@ const App: React.FC = () => {
       )}
 
       {activeTab === TabType.GENERATOR && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8" dir="rtl">
            <div className="space-y-6">
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><Wand2 className="w-6 h-6 text-blue-500" /> Générateur</h3>
+                <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><Wand2 className="w-6 h-6 text-blue-500" /> المولّد الصرفي</h3>
                 <div className="space-y-4">
                   <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-arabic text-lg text-right outline-none" value={genRoot} onChange={e => setGenRoot(e.target.value)}>
-                    <option value="">-- Racine --</option>
-                    {roots.map(r => <option key={r.root} value={r.root}>{r.root}</option>)}
+                    <option value="">-- اختر جذراً --</option>
+                    {roots.map(r => <option key={r.root} value={r.root}>{r.root} ({r.verb_type})</option>)}
                   </select>
                   <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-arabic text-lg text-right outline-none" value={genSchemeId} onChange={e => setGenSchemeId(e.target.value)}>
-                    <option value="">-- Schème --</option>
+                    <option value="">-- اختر وزناً --</option>
                     {schemes.map(s => <option key={s.id} value={s.id}>{s.id} ({s.pattern})</option>)}
                   </select>
                   <button onClick={handleGenerate} disabled={!genRoot || !genSchemeId || loading} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 disabled:opacity-50">
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Générer'}
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'توليد الكلمة'}
                   </button>
                 </div>
               </div>
               {genResult && (
                 <div className="bg-emerald-600 text-white p-8 rounded-2xl shadow-xl flex items-center justify-between animate-in zoom-in-95">
                   <div>
-                    <span className="text-[10px] font-bold uppercase opacity-80">Dérivation Réussie</span>
-                    <h2 className="text-5xl font-arabic font-bold mt-1">{genResult}</h2>
+                    <span className="text-[10px] font-bold uppercase opacity-80">توليد ناجح</span>
+                    <h2 className="text-5xl font-arabic font-bold mt-1">{genResult.word}</h2>
+                    <p className="text-sm opacity-90 mt-2">نوع الفعل: {genResult.verb_type}</p>
                   </div>
                   <BrainCircuit className="w-12 h-12 opacity-30" />
                 </div>
@@ -295,7 +391,7 @@ const App: React.FC = () => {
            
            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-full">
              <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-               <History className="w-4 h-4 text-slate-400" /> Générateur
+               <History className="w-4 h-4 text-slate-400" /> السجل
              </h4>
 
              <div className="flex-1 overflow-y-auto space-y-3">
@@ -305,11 +401,11 @@ const App: React.FC = () => {
                  .map(r => (
                    <div key={r.root} className="p-3 bg-slate-50 rounded-xl border border-slate-100">
 
-                     <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">
-                       {r.root}
+                     <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 text-right">
+                       {r.root} ({r.verb_type})
                      </p>
 
-                     <div className="flex flex-wrap gap-1">
+                     <div className="flex flex-wrap gap-1 justify-end">
                        {(r.derivedWords || []).map((dw, i) => (
                          <span
                            key={i}
@@ -325,7 +421,7 @@ const App: React.FC = () => {
 
                {roots.every(r => (r.derivedWords?.length || 0) === 0) && (
                  <div className="text-center py-12 text-slate-400">
-                   Aucun mot généré pour le moment.
+                   لا توجد كلمات مولدة حتى الآن.
                  </div>
                )}
 
@@ -335,37 +431,61 @@ const App: React.FC = () => {
       )}
 
       {activeTab === TabType.VALIDATOR && (
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-3xl mx-auto space-y-6" dir="rtl">
            <div className="bg-white p-8 rounded-2xl shadow-md border border-slate-200">
               <div className="text-center mb-8">
                 <SearchCheck className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-slate-800">Validation Algorithmique</h3>
-                <p className="text-slate-400 text-sm mt-1">Normalisation et comparaison via API Python</p>
+                <h3 className="text-2xl font-bold text-slate-800">التحقق من الصيغ</h3>
+                <p className="text-slate-400 text-sm mt-1">التحليل الخوارزمي عبر خادم Python مع كشف نوع الفعل</p>
               </div>
               <div className="space-y-6">
                 <div className="flex gap-4">
-                  <div className="flex-1">
-                    <label className="block text-xs font-bold text-slate-500 mb-2">Mot à valider</label>
-                    <input className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-right font-arabic text-2xl outline-none" value={valWord} onChange={e => setValWord(e.target.value)} placeholder="Ex: مكتوب" />
-                  </div>
                   <div className="w-32">
-                    <label className="block text-xs font-bold text-slate-500 mb-2">Racine</label>
+                    <label className="block text-xs font-bold text-slate-500 mb-2 text-right">الجذر</label>
                     <input className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-center font-arabic text-2xl outline-none" value={valRoot} onChange={e => setValRoot(e.target.value)} maxLength={3} placeholder="كتب" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-slate-500 mb-2 text-right">الكلمة المراد التحقق منها</label>
+                    <input className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-right font-arabic text-2xl outline-none" value={valWord} onChange={e => setValWord(e.target.value)} placeholder="مثال: مكتوب" />
                   </div>
                 </div>
                 <button onClick={handleValidate} disabled={loading} className="w-full py-4 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-all flex items-center justify-center gap-2">
-                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Analyser la structure'}
+                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'تحليل البنية الصرفية'}
                 </button>
               </div>
            </div>
 
            {valResult && (
-             <div className={`p-6 rounded-2xl border flex items-center gap-4 animate-in slide-in-from-top-4 ${valResult.isValid ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
-                {valResult.isValid ? <SearchCheck className="w-8 h-8" /> : <AlertCircle className="w-8 h-8" />}
-                <div>
-                   <h4 className="font-bold">{valResult.isValid ? 'Validation Réussie' : 'Validation Échouée'}</h4>
-                   <p className="text-sm opacity-80">{valResult.isValid ? `Mot reconnu comme pattern "${valResult.scheme}".` : 'Aucun schème correspondant trouvé après normalisation.'}</p>
+             <div className={`p-6 rounded-2xl border flex items-start gap-4 animate-in slide-in-from-top-4 ${valResult.isValid ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+                {valResult.isValid ? <SearchCheck className="w-8 h-8 flex-shrink-0" /> : <AlertCircle className="w-8 h-8 flex-shrink-0" />}
+                <div className="flex-1">
+                   <h4 className="font-bold text-right">{valResult.isValid ? 'تحقق ناجح' : 'التحقق فشل'}</h4>
+                   <p className="text-sm opacity-80 text-right mt-1">
+                     {valResult.isValid 
+                       ? `الكلمة معروفة كنمط "${valResult.scheme}".` 
+                       : 'لم يتم العثور على وزن مطابق بعد التطبيع.'}
+                   </p>
+                   {valResult.verb_type && (
+                     <p className="text-sm mt-2 text-right">نوع الفعل: <strong>{valResult.verb_type}</strong></p>
+                   )}
                 </div>
+             </div>
+           )}
+
+           {verbTypes.length > 0 && (
+             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+               <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                 <BookOpen className="w-5 h-5 text-blue-600" /> أنواع الأفعال المدعومة
+               </h4>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 {verbTypes.map(verb => (
+                   <div key={verb.type} className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                     <h5 className="font-bold text-slate-800 text-right mb-2">{verb.type}</h5>
+                     <p className="text-sm text-slate-600 text-right">المثال: {verb.exemple}</p>
+                     <p className="text-xs text-slate-500 text-right mt-1">{verb.caracteristiques}</p>
+                   </div>
+                 ))}
+               </div>
              </div>
            )}
         </div>

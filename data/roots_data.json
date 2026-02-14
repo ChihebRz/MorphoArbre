@@ -1,0 +1,237 @@
+[
+  {
+    "root": "أخذ",
+    "verb_type": "مهموز الفاء",
+    "derived_words": [
+      {
+        "word": "اخذ",
+        "frequency": 2
+      },
+      {
+        "word": "ياخذ",
+        "frequency": 1
+      },
+      {
+        "word": "آخذ",
+        "frequency": 1
+      },
+      {
+        "word": "ماخوذ",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "أكل",
+    "verb_type": "مهموز الفاء",
+    "derived_words": [
+      {
+        "word": "اكل",
+        "frequency": 5
+      },
+      {
+        "word": "ياكل",
+        "frequency": 1
+      },
+      {
+        "word": "آكل",
+        "frequency": 2
+      },
+      {
+        "word": "ماكول",
+        "frequency": 2
+      }
+    ]
+  },
+  {
+    "root": "باع",
+    "verb_type": "أجوف",
+    "derived_words": [
+      {
+        "word": "بع",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "بقي",
+    "verb_type": "ناقص يائي",
+    "derived_words": [
+      {
+        "word": "بقي",
+        "frequency": 1
+      },
+      {
+        "word": "يبقى",
+        "frequency": 1
+      },
+      {
+        "word": "ابق",
+        "frequency": 2
+      },
+      {
+        "word": "باق",
+        "frequency": 1
+      },
+      {
+        "word": "مبقوي",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "خرج",
+    "verb_type": "صحيح سالم",
+    "derived_words": [
+      {
+        "word": "اخرج",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "درس",
+    "verb_type": "صحيح سالم",
+    "derived_words": []
+  },
+  {
+    "root": "دعا",
+    "verb_type": "ناقص ألفي",
+    "derived_words": [
+      {
+        "word": "دعا",
+        "frequency": 1
+      },
+      {
+        "word": "يدعو",
+        "frequency": 1
+      },
+      {
+        "word": "ادع",
+        "frequency": 1
+      },
+      {
+        "word": "داع",
+        "frequency": 1
+      },
+      {
+        "word": "مدعوو",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "رسم",
+    "verb_type": "صحيح سالم",
+    "derived_words": []
+  },
+  {
+    "root": "رمى",
+    "verb_type": "ناقص يائي",
+    "derived_words": [
+      {
+        "word": "ارم",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "سأل",
+    "verb_type": "مهموز العين",
+    "derived_words": []
+  },
+  {
+    "root": "طوى",
+    "verb_type": "لفيف مقرون",
+    "derived_words": []
+  },
+  {
+    "root": "قال",
+    "verb_type": "أجوف",
+    "derived_words": [
+      {
+        "word": "قال",
+        "frequency": 1
+      },
+      {
+        "word": "يقول",
+        "frequency": 2
+      },
+      {
+        "word": "قل",
+        "frequency": 2
+      },
+      {
+        "word": "قائل",
+        "frequency": 1
+      },
+      {
+        "word": "مقول",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "كتب",
+    "verb_type": "صحيح سالم",
+    "derived_words": [
+      {
+        "word": "كتب",
+        "frequency": 1
+      },
+      {
+        "word": "يكتب",
+        "frequency": 1
+      },
+      {
+        "word": "اكتب",
+        "frequency": 1
+      },
+      {
+        "word": "كاتب",
+        "frequency": 1
+      },
+      {
+        "word": "مكتوب",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "مدد",
+    "verb_type": "مضاعف",
+    "derived_words": [
+      {
+        "word": "ممدود",
+        "frequency": 1
+      },
+      {
+        "word": "مادد",
+        "frequency": 1
+      },
+      {
+        "word": "يمدد",
+        "frequency": 1
+      },
+      {
+        "word": "امدد",
+        "frequency": 1
+      }
+    ]
+  },
+  {
+    "root": "ملأ",
+    "verb_type": "مهموز اللام",
+    "derived_words": []
+  },
+  {
+    "root": "وجد",
+    "verb_type": "مثال واوي",
+    "derived_words": []
+  },
+  {
+    "root": "وقى",
+    "verb_type": "لفيف مفروق",
+    "derived_words": []
+  }
+]

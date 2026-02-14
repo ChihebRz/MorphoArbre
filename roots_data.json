@@ -1,53 +1,6 @@
 [
   {
-    "root": "أكل",
-    "derived_words": [
-      {
-        "word": "مَأْكُول",
-        "frequency": 1
-      },
-      {
-        "word": "أَكَلَ",
-        "frequency": 1
-      },
-      {
-        "word": "أَاكِل",
-        "frequency": 1
-      },
-      {
-        "word": "اأْتَكَلَ",
-        "frequency": 1
-      }
-    ]
-  },
-  {
-    "root": "بقي",
-    "derived_words": [
-      {
-        "word": "مَبْقُوي",
-        "frequency": 1
-      }
-    ]
-  },
-  {
-    "root": "جلس",
-    "derived_words": [
-      {
-        "word": "اجْتَلَسَ",
-        "frequency": 1
-      },
-      {
-        "word": "اجْلَس",
-        "frequency": 1
-      }
-    ]
-  },
-  {
-    "root": "خرج",
-    "derived_words": []
-  },
-  {
-    "root": "درس",
+    "root": "كتب",
     "derived_words": []
   },
   {
@@ -55,7 +8,51 @@
     "derived_words": []
   },
   {
-    "root": "كتب",
+    "root": "أكل",
+    "derived_words": []
+  },
+  {
+    "root": "سأل",
+    "derived_words": []
+  },
+  {
+    "root": "ملأ",
+    "derived_words": []
+  },
+  {
+    "root": "وجد",
+    "derived_words": []
+  },
+  {
+    "root": "قال",
+    "derived_words": []
+  },
+  {
+    "root": "باع",
+    "derived_words": []
+  },
+  {
+    "root": "بقي",
+    "derived_words": []
+  },
+  {
+    "root": "رمى",
+    "derived_words": []
+  },
+  {
+    "root": "دعا",
+    "derived_words": []
+  },
+  {
+    "root": "وقى",
+    "derived_words": []
+  },
+  {
+    "root": "طوى",
+    "derived_words": []
+  },
+  {
+    "root": "مدد",
     "derived_words": []
   }
 ]
