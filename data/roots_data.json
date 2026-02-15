@@ -5,7 +5,7 @@
     "derived_words": [
       {
         "word": "اخذ",
-        "frequency": 2
+        "frequency": 4
       },
       {
         "word": "ياخذ",
@@ -18,6 +18,18 @@
       {
         "word": "ماخوذ",
         "frequency": 1
+      },
+      {
+        "word": "ااخذ",
+        "frequency": 2
+      },
+      {
+        "word": "خذ",
+        "frequency": 2
+      },
+      {
+        "word": "يأخذ",
+        "frequency": 1
       }
     ]
   },
@@ -27,19 +39,35 @@
     "derived_words": [
       {
         "word": "اكل",
-        "frequency": 5
+        "frequency": 12
       },
       {
         "word": "ياكل",
-        "frequency": 1
+        "frequency": 3
       },
       {
         "word": "آكل",
-        "frequency": 2
+        "frequency": 8
       },
       {
         "word": "ماكول",
-        "frequency": 2
+        "frequency": 4
+      },
+      {
+        "word": "ااكل",
+        "frequency": 3
+      },
+      {
+        "word": "كل",
+        "frequency": 8
+      },
+      {
+        "word": "أكل",
+        "frequency": 5
+      },
+      {
+        "word": "يأكل",
+        "frequency": 5
       }
     ]
   },
@@ -49,6 +77,34 @@
     "derived_words": [
       {
         "word": "بع",
+        "frequency": 7
+      },
+      {
+        "word": "اباع",
+        "frequency": 7
+      },
+      {
+        "word": "ااع",
+        "frequency": 1
+      },
+      {
+        "word": "ابع",
+        "frequency": 2
+      },
+      {
+        "word": "باع",
+        "frequency": 1
+      },
+      {
+        "word": "يباع",
+        "frequency": 2
+      },
+      {
+        "word": "بائع",
+        "frequency": 1
+      },
+      {
+        "word": "مباوع",
         "frequency": 1
       }
     ]
@@ -59,7 +115,7 @@
     "derived_words": [
       {
         "word": "بقي",
-        "frequency": 1
+        "frequency": 6
       },
       {
         "word": "يبقى",
@@ -67,15 +123,27 @@
       },
       {
         "word": "ابق",
-        "frequency": 2
+        "frequency": 11
       },
       {
         "word": "باق",
-        "frequency": 1
+        "frequency": 9
       },
       {
         "word": "مبقوي",
+        "frequency": 6
+      },
+      {
+        "word": "يبقي",
+        "frequency": 2
+      },
+      {
+        "word": "ابقي",
         "frequency": 1
+      },
+      {
+        "word": "يبقو",
+        "frequency": 4
       }
     ]
   },
@@ -85,14 +153,35 @@
     "derived_words": [
       {
         "word": "اخرج",
+        "frequency": 6
+      },
+      {
+        "word": "خرج",
         "frequency": 1
+      },
+      {
+        "word": "يخرج",
+        "frequency": 2
+      },
+      {
+        "word": "خارج",
+        "frequency": 1
+      },
+      {
+        "word": "مخروج",
+        "frequency": 2
       }
     ]
   },
   {
     "root": "درس",
     "verb_type": "صحيح سالم",
-    "derived_words": []
+    "derived_words": [
+      {
+        "word": "ادرس",
+        "frequency": 1
+      }
+    ]
   },
   {
     "root": "دعا",
@@ -100,22 +189,26 @@
     "derived_words": [
       {
         "word": "دعا",
-        "frequency": 1
+        "frequency": 3
       },
       {
         "word": "يدعو",
-        "frequency": 1
+        "frequency": 2
       },
       {
         "word": "ادع",
-        "frequency": 1
+        "frequency": 5
       },
       {
         "word": "داع",
-        "frequency": 1
+        "frequency": 5
       },
       {
         "word": "مدعوو",
+        "frequency": 1
+      },
+      {
+        "word": "مدعوا",
         "frequency": 1
       }
     ]
@@ -131,19 +224,89 @@
     "derived_words": [
       {
         "word": "ارم",
-        "frequency": 1
+        "frequency": 2
       }
     ]
   },
   {
     "root": "سأل",
     "verb_type": "مهموز العين",
-    "derived_words": []
+    "derived_words": [
+      {
+        "word": "اسال",
+        "frequency": 3
+      },
+      {
+        "word": "سال",
+        "frequency": 2
+      },
+      {
+        "word": "يسال",
+        "frequency": 1
+      },
+      {
+        "word": "ساال",
+        "frequency": 2
+      },
+      {
+        "word": "مساول",
+        "frequency": 1
+      },
+      {
+        "word": "ساائ",
+        "frequency": 2
+      },
+      {
+        "word": "سأل",
+        "frequency": 4
+      },
+      {
+        "word": "ساأل",
+        "frequency": 2
+      },
+      {
+        "word": "سائل",
+        "frequency": 1
+      },
+      {
+        "word": "اسأل",
+        "frequency": 1
+      }
+    ]
   },
   {
     "root": "طوى",
     "verb_type": "لفيف مقرون",
-    "derived_words": []
+    "derived_words": [
+      {
+        "word": "ط",
+        "frequency": 2
+      },
+      {
+        "word": "مطووي",
+        "frequency": 5
+      },
+      {
+        "word": "طوي",
+        "frequency": 5
+      },
+      {
+        "word": "يطوي",
+        "frequency": 5
+      },
+      {
+        "word": "طاو",
+        "frequency": 5
+      },
+      {
+        "word": "اطوي",
+        "frequency": 1
+      },
+      {
+        "word": "ف",
+        "frequency": 3
+      }
+    ]
   },
   {
     "root": "قال",
@@ -151,7 +314,7 @@
     "derived_words": [
       {
         "word": "قال",
-        "frequency": 1
+        "frequency": 7
       },
       {
         "word": "يقول",
@@ -159,15 +322,31 @@
       },
       {
         "word": "قل",
-        "frequency": 2
+        "frequency": 3
       },
       {
         "word": "قائل",
-        "frequency": 1
+        "frequency": 9
       },
       {
         "word": "مقول",
+        "frequency": 7
+      },
+      {
+        "word": "يقال",
+        "frequency": 6
+      },
+      {
+        "word": "اقال",
         "frequency": 1
+      },
+      {
+        "word": "ال",
+        "frequency": 3
+      },
+      {
+        "word": "اقل",
+        "frequency": 3
       }
     ]
   },
@@ -177,23 +356,23 @@
     "derived_words": [
       {
         "word": "كتب",
-        "frequency": 1
+        "frequency": 5
       },
       {
         "word": "يكتب",
-        "frequency": 1
+        "frequency": 5
       },
       {
         "word": "اكتب",
-        "frequency": 1
+        "frequency": 5
       },
       {
         "word": "كاتب",
-        "frequency": 1
+        "frequency": 8
       },
       {
         "word": "مكتوب",
-        "frequency": 1
+        "frequency": 5
       }
     ]
   },
@@ -222,16 +401,71 @@
   {
     "root": "ملأ",
     "verb_type": "مهموز اللام",
-    "derived_words": []
+    "derived_words": [
+      {
+        "word": "املا",
+        "frequency": 1
+      }
+    ]
   },
   {
     "root": "وجد",
     "verb_type": "مثال واوي",
-    "derived_words": []
+    "derived_words": [
+      {
+        "word": "واجد",
+        "frequency": 7
+      },
+      {
+        "word": "وجد",
+        "frequency": 7
+      },
+      {
+        "word": "يوجد",
+        "frequency": 1
+      },
+      {
+        "word": "اوجد",
+        "frequency": 2
+      },
+      {
+        "word": "اجد",
+        "frequency": 5
+      },
+      {
+        "word": "موجود",
+        "frequency": 6
+      },
+      {
+        "word": "يجد",
+        "frequency": 4
+      }
+    ]
   },
   {
     "root": "وقى",
     "verb_type": "لفيف مفروق",
-    "derived_words": []
+    "derived_words": [
+      {
+        "word": "واق",
+        "frequency": 3
+      },
+      {
+        "word": "وقي",
+        "frequency": 1
+      },
+      {
+        "word": "يوقي",
+        "frequency": 1
+      },
+      {
+        "word": "ف",
+        "frequency": 1
+      },
+      {
+        "word": "موقوي",
+        "frequency": 1
+      }
+    ]
   }
 ]

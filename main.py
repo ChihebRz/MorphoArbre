@@ -101,13 +101,33 @@ def detect_verb_type(root: str) -> str:
     # Must check BEFORE single weak patterns
     if weak_start and weak_end and not weak_mid:
         return "لفيف مفروق"  # weak at start AND end (not middle)
+    
     if weak_start and weak_mid and not weak_end:
-        return "لفيف مقرون"  # weak at start AND middle
+        # Weak at start AND middle (لفيف مقرون)
+        if r1 == 'و' and r2 == 'ي':
+            return "لفيف مقرون واوي"
+        elif r1 == 'ي' and r2 == 'ي':
+            return "لفيف مقرون يائي"
+        else:
+            return "لفيف مقرون"
+    
     if weak_mid and weak_end and not weak_start:
-        return "لفيف مقرون"  # weak at middle AND end
+        # Weak at middle AND end (could be also لفيف مقرون)
+        if r2 == 'و' and r3 == 'ي':
+            return "لفيف مقرون واوي"
+        elif r2 == 'ي' and r3 == 'ي':
+            return "لفيف مقرون يائي"
+        else:
+            return "لفيف مقرون"
+    
     if weak_start and weak_mid and weak_end:
         # All three weak - still لفيف
-        return "لفيف مقرون"
+        if r1 == 'و' and r2 == 'ي' and r3 in ('ي', 'ى'):
+            return "لفيف مقرون واوي"
+        elif r1 == 'ي' and r2 == 'ي' and r3 in ('ي', 'ى'):
+            return "لفيف مقرون يائي"
+        else:
+            return "لفيف مقرون"
     
     # --- Single Weak Letters ---
     # Weak at START only
@@ -145,10 +165,25 @@ def detect_verb_type(root: str) -> str:
     
     return "غير معروف"
 
-def identify_pattern_type(pattern: str) -> str:
-    """Identify which morphological form a pattern represents.
-    Returns: 'past', 'present', 'imperative', 'agent', 'patient', 'unknown'
+def identify_pattern_type(pattern: str, scheme_id: str = "") -> str:
+    """Identify which morphological form a pattern represents by scheme_id.
+    Scheme ID is more reliable than pattern string matching.
     """
+    # Use scheme_id if we can determine it from context
+    scheme_id_norm = scheme_id.lower().strip()
+    
+    if 'فاعل' in scheme_id_norm:
+        return 'agent'
+    if 'مفعول' in scheme_id_norm:
+        return 'patient'
+    if 'أمر' in scheme_id_norm:
+        return 'imperative'
+    if 'يفعل' in scheme_id_norm:
+        return 'present'
+    if 'فعل' in scheme_id_norm and 'اعل' not in scheme_id_norm:  # Avoid matching فاعل
+        return 'past'
+    
+    # Fallback to pattern matching
     pattern_norm = normalize_arabic(pattern)
     
     # Agent noun (اسم الفاعل)
@@ -173,199 +208,304 @@ def identify_pattern_type(pattern: str) -> str:
     
     return 'unknown'
 
-def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: str) -> str:
-    """Apply morphological transformations based on verb type and pattern.
+def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: str, scheme_id: str = "") -> str:
+    """Apply morphological transformations based on verb type and pattern."""
     
-    Follows the complete Arabic morphological rules for:
-    1. صحيح سالم (Regular)
-    2. مهموز (Hamza verbs)
-    3. مثال (Weak at start)
-    4. أجوف (Weak at middle)
-    5. ناقص (Weak at end)
-    6. مضاعف (Doubled)
-    7. لفيف (Double weak)
-    """
+    if not root or len(root) < 3:
+        return word
     
-    # Normalize both word and pattern
+    # Keep original root with hamza
+    r1_orig, r2_orig, r3_orig = root[0], root[1], root[2]
     word_norm = normalize_arabic(word)
-    pattern_type = identify_pattern_type(pattern)
+    pattern_type = identify_pattern_type(pattern, scheme_id)
     
-    # === 1. صحيح سالم (Regular verbs) ===
-    # No transformations needed - return directly
+    # Helper: restore hamza at specific position
+    def restore_hamza(text, pos, char):
+        if pos < len(text):
+            # Accept any form of hamza: أ، إ، آ، ء
+            if char in ('أ', 'إ', 'آ', 'ء'):
+                return text[:pos] + char + text[pos+1:]
+        return text
+    
+    # === 0. صحيح سالم ===
     if verb_type == "صحيح سالم":
         return word_norm
     
-    # === 2. مضاعف (Doubled letters) ===
-    # عين = لام, stays as is
+    # === 1. مضاعف ===
     if verb_type == "مضاعف":
+        if pattern_type == 'imperative' and word_norm.startswith('ا'):
+            return word_norm[1:]
         return word_norm
     
-    # === 3. مهموز الفاء (Hamza at ROOT START) ===
+    # === 1.5. مهموز الفاء (Hamza at START) ===
     if verb_type == "مهموز الفاء":
-        if pattern_type == 'agent':
-            # ف = ء, ع, ل → اء + ع + ل → آ + ع + ل
-            if word_norm.startswith('اا'):
-                return 'آ' + word_norm[2:]
+        if pattern_type == 'past':
+            # أَفَعَلَ - restore hamza at start
+            return restore_hamza(word_norm, 0, r1_orig)
+        elif pattern_type == 'present':
+            # يَأْفْعَلُ - restore hamza at position 1 (after ي)
+            if word_norm and word_norm[0] == 'ي':
+                return word_norm[0] + restore_hamza(word_norm[1:], 0, r1_orig)
             return word_norm
         elif pattern_type == 'imperative':
-            # اف + ع + ل → (drop ا marking hamza) → ف + ع + ل
-            if len(word_norm) > 1 and word_norm[0] == 'ا':
-                return word_norm[1:]
-            return word_norm
-        else:
-            # past, present, patient: return as-is
-            return word_norm
+            # عْلْ - keep last 2 chars only
+            return word_norm[-2:] if len(word_norm) >= 2 else word_norm
+        elif pattern_type == 'agent':
+            # فَاعِل - اا → آ
+            return ('آ' + word_norm[2:]) if word_norm.startswith('اا') else word_norm
+        else:  # patient
+            # مَفْعُول - restore hamza at position 2
+            return word_norm[:2] + restore_hamza(word_norm[2:], 0, r1_orig) if len(word_norm) >= 3 else word_norm
     
-    # === 4. مهموز العين (Hamza at ROOT MIDDLE) ===
+    # === 1.6. مهموز العين (Hamza at MIDDLE) ===
     if verb_type == "مهموز العين":
-        # ع = ء, follow أجوف pattern for agent
-        if pattern_type == 'agent':
-            # Pattern: فاعل → ف + اء + ل → ف + ا + ل
-            # But when doubled: فاال → فائ ل
-            if 'اا' in word_norm:
-                return word_norm.replace('اا', 'ائ', 1)
+        if pattern_type == 'past':
+            # فَأَعَلَ - restore hamza at position 1
+            return restore_hamza(word_norm, 1, r2_orig)
+        elif pattern_type == 'present':
+            # يَفْأَعَلُ - restore hamza at position 2 (after ي + first consonant)
+            if word_norm.startswith('ي'):
+                return word_norm[0:2] + restore_hamza(word_norm[2:], 0, r2_orig)
             return word_norm
-        else:
+        elif pattern_type == 'imperative':
+            # اِفْأَعَلْ - restore hamza at position 1 (after ا + first consonant)
+            if word_norm.startswith('ا'):
+                return word_norm[0:2] + restore_hamza(word_norm[2:], 0, r2_orig)
             return word_norm
+        elif pattern_type == 'agent':
+            # فَائِل - pattern gives "سَاأِل" which normalizes to "ساال"
+            # We need "سائل" - word_norm = [ف] + [ا] + [ا from hamza] + [اللام]
+            # Replace the two alefs (ا+ا) with (ا+ئ) 
+            if len(word_norm) >= 3 and word_norm[1] == 'ا' and word_norm[2] == 'ا':
+                return word_norm[0] + 'ائ' + word_norm[3:]
+            return word_norm
+        else:  # patient
+            # مَفْؤُول - hamza in position 2
+            return word_norm[:2] + restore_hamza(word_norm[2:], 0, r2_orig) if len(word_norm) >= 3 else word_norm
     
-    # === 5. مهموز اللام (Hamza at ROOT END) ===
+    # === 1.7. مهموز اللام (Hamza at END) ===
     if verb_type == "مهموز اللام":
-        # ل = ء, mostly behaves like ناقص
-        if pattern_type == 'agent':
-            # فعل with ل=ء → فاعل but ends in ء
-            return word_norm
-        else:
-            return word_norm
+        # All patterns: keep word_norm and restore hamza at end
+        if pattern_type in ['past', 'present', 'imperative', 'patient']:
+            # Restore hamza at last position
+            return restore_hamza(word_norm, len(word_norm) - 1, r3_orig)
+        return word_norm
     
-    # === 6. مثال واوي/يائي (WEAK AT START) ===
-    if verb_type in ["مثال واوي", "مثال يائي", "مثال"]:
-        r1 = root[0]
-        weak_char = r1  # و or ي
-        
-        if pattern_type == 'imperative':
-            # Imperative drops the weak start: وجد + أمر → جد (not وجد)
-            if len(word_norm) > 0 and word_norm[0] in ['و', 'ي']:
-                return word_norm[1:]
+    # === 2. مثال واوي (Weak at START: و) ===
+    # Patterns: وَفَعَلَ | يَفْعِلُ | فِعْلْ | فَاعِل | مَفْعُول
+    if verb_type == "مثال واوي":
+        if pattern_type == 'past':
+            # Keep: وَفَعَلَ (weak و at start)
             return word_norm
         elif pattern_type == 'present':
-            # Present: الواو تسقط في المضارع
-            # وجد → يجد (not يوجد)
-            if len(word_norm) > 0 and word_norm[0] in ['و', 'ي']:
-                return word_norm[1:]
+            # يَفْعِلُ (drop و, keep ي from pattern)
+            # Pattern gives يَوْعَد, should drop و → يعد
+            if len(word_norm) >= 2 and word_norm[1] in ['و', 'ي']:
+                return word_norm[0] + word_norm[2:]
             return word_norm
-        else:
-            # past, agent, patient: can keep weak letter
+        elif pattern_type == 'imperative':
+            # فِعْلْ (drop ا prefix AND weak و)
+            # Pattern gives افْعَل, word is اوعد
+            # Result: عد (remove ا and و)
+            if len(word_norm) >= 3 and word_norm[0] == 'ا' and word_norm[1] in ['و', 'ي']:
+                return word_norm[2:]
+            elif len(word_norm) >= 2 and word_norm[1] in ['و', 'ي']:
+                return word_norm[0] + word_norm[2:]
+            return word_norm
+        else:  # agent, patient
             return word_norm
     
-    # === 7. أجوف واوي/يائي (WEAK AT MIDDLE) ===
-    if verb_type in ["أجوف", "أجوف واوي", "أجوف يائي"]:
-        if pattern_type == 'agent':
-            # ف + ا + ع + ل (pattern) with ع=و/ي
-            # Pattern: فاعل → قاال → قائل
-            if 'اا' in word_norm:
-                return word_norm.replace('اا', 'ائ', 1)
+    # === 2.1. مثال يائي (Weak at START: ي) ===
+    # Patterns: يَفْعَلَ | يَفْعَلُ | اِفْعَلْ | فَاعِل | مَفْعُول
+    if verb_type == "مثال يائي":
+        if pattern_type == 'past':
+            # Keep: يَفْعَلَ (ي at start, but not counted as weak in classical sense)
             return word_norm
-        
-        elif pattern_type == 'patient':
-            # Pattern: مفعول = م + ف + و + ع + ل
-            # For أجوف: م + ف + و + ا + ل (weak ع inserted as ا)
-            # Result should be مفول (not مفاول)
-            if 'اول' in word_norm:
-                # Remove the inserted weak alef before و
-                return word_norm.replace('اول', 'ول', 1)
+        elif pattern_type == 'present':
+            # يَفْعَلُ (normal present)
             return word_norm
-        
         elif pattern_type == 'imperative':
-            # Pattern: اف + ع + ل
-            # For أجوف: اف + ا + ل (weak ع inserted as ا)
-            # Result should be اف + ل (keep consonants) = اقل (not اقال)
-            if 'ال' in word_norm and word_norm.startswith('ا'):
-                # Keep first (ا from imperative) and last consonant
+            # اِفْعَلْ (normal imperative with ا prefix)
+            return word_norm
+        else:  # agent, patient
+            return word_norm
+    
+    # === 3. أجوف واوي (Weak in MIDDLE: و) ===
+    # Patterns: فَالَ | يَفُولُ | فُلْ | فَائِل | مَفُول
+    if verb_type == "أجوف واوي":
+        if pattern_type == 'past':
+            # فَالَ (keep و as alef في الماضي)
+            return word_norm
+        elif pattern_type == 'present':
+            # يَفُولُ (damma becomes و in present)
+            return word_norm
+        elif pattern_type == 'imperative':
+            # فُلْ (just ف + ل, no ا prefix, و becomes damma before ل)
+            # Pattern gives اقال, should be قل (first and last letter only)
+            if len(word_norm) >= 2:
                 return word_norm[0] + word_norm[-1]
             return word_norm
-        
-        elif pattern_type == 'present':
-            # Present: ي + ف + و/ل + ع + ل
-            # For أجوف: يفول/يفيل
+        elif pattern_type == 'agent':
+            # فَائِل (ا + ي + ل, with hamza)
+            if 'ال' in word_norm or 'او' in word_norm:
+                word_norm = word_norm.replace('ال', 'ائ').replace('او', 'ائ')
             return word_norm
-        
-        else:  # past
+        elif pattern_type == 'patient':
+            # مَفُول (keep و)
             return word_norm
     
-    # === 8. ناقص يائي (WEAK ي AT END) ===
+    # === 3.1. أجوف يائي (Weak in MIDDLE: ي) ===
+    # Patterns: فَالَ | يَفِيلُ | فِلْ | فَائِل | مَفِيل
+    if verb_type == "أجوف يائي":
+        if pattern_type == 'past':
+            # فَالَ (ي as alef في الماضي)
+            return word_norm
+        elif pattern_type == 'present':
+            # يَفِيلُ (ي with kasra)
+            return word_norm
+        elif pattern_type == 'imperative':
+            # فِلْ (just ف + ل, with kasra, no ا prefix)
+            # Pattern gives اقال, should be قل (first and last letter only)
+            if len(word_norm) >= 2:
+                return word_norm[0] + word_norm[-1]
+            return word_norm
+        elif pattern_type == 'agent':
+            # فَائِل (ا + ي + ل, with hamza)
+            if 'ال' in word_norm or 'اي' in word_norm:
+                word_norm = word_norm.replace('ال', 'ائ').replace('اي', 'ائ')
+            return word_norm
+        elif pattern_type == 'patient':
+            # مَفِيل (ي in patient)
+            return word_norm
+    
+    # === 4. ناقص واوي (Weak at END: و) ===
+    # Patterns: فَعَا | يَفْعُو | اِفْعُ | فَاعٍ | مَفْعُوّ
+    if verb_type == "ناقص واوي":
+        if pattern_type == 'past':
+            # فَعَا (ا from pattern, و from root)
+            return word_norm
+        elif pattern_type == 'present':
+            # يَفْعُو (damma before و)
+            return word_norm
+        elif pattern_type == 'imperative':
+            # اِفْعُ (drop weak end)
+            # Pattern gives افعا, should drop ا → افع
+            if word_norm.endswith('ا') or word_norm.endswith('و') or word_norm.endswith('ي'):
+                return word_norm[:-1]
+            return word_norm
+        elif pattern_type == 'agent':
+            # فَاعٍ with nunation
+            if word_norm and word_norm[-1] in 'اوي':
+                return word_norm[:-1]
+            return word_norm
+        elif pattern_type == 'patient':
+            # مَفْعُوّ with doubled letter at end
+            return word_norm
+    
+    # === 4.1. ناقص يائي (Weak at END: ي/ى) ===
+    # Patterns: فَعَى | يَفْعِي | اِفْعِ | فَاعٍ | مَفْعِيّ
     if verb_type == "ناقص يائي":
-        if pattern_type == 'agent':
-            # بقي + فاعل → بقي → باقي BUT rule says drop ي → باق
-            # رمى + فاعل → رما (after norm) → رام
-            return word_norm.rstrip('ي')
-        
-        elif pattern_type == 'patient':
-            # Pattern مفعول: م + ف + ع + و + ل
-            # ناقص ي: م + ب + ق + و + ي → مبقوي
-            # Keep as-is (و from pattern + ي from root end)
+        if pattern_type == 'past':
+            # فَعَى (ا from pattern becomes ى)
             return word_norm
-        
-        elif pattern_type == 'imperative':
-            # اف + ع + ل with ل=ي
-            # Result: ابق (drop final ي)
-            return word_norm.rstrip('ي')
-        
         elif pattern_type == 'present':
-            # Present: ي + ف + ع + و/ي
-            # يبقى (with ى instead of ي)
-            if word_norm.endswith('ي'):
-                return word_norm[:-1] + 'ى'
+            # يَفْعِي (ي with kasra)
             return word_norm
-        
-        else:
+        elif pattern_type == 'imperative':
+            # اِفْعِ (drop weak end)
+            # Pattern gives افعي, should drop ي → افع
+            if word_norm.endswith('ا') or word_norm.endswith('و') or word_norm.endswith('ي'):
+                return word_norm[:-1]
+            return word_norm
+        elif pattern_type == 'agent':
+            # فَاعٍ with nunation
+            if word_norm and word_norm[-1] in 'اوي':
+                return word_norm[:-1]
+            return word_norm
+        elif pattern_type == 'patient':
+            # مَفْعِيّ with doubled ي at end
             return word_norm
     
-    # === 9. ناقص واوي/ألفي (WEAK ا/و AT END) ===
-    if verb_type in ["ناقص واوي", "ناقص ألفي"]:
-        if pattern_type == 'agent':
-            # دعا + فاعل → داعا BUT rule says drop final ا → داع
-            return word_norm.rstrip('او')
-        
-        elif pattern_type == 'patient':
-            # Pattern مفعول: م + د + ع + و + ا
-            # Rule: final ا→و so مدعو
-            if word_norm.endswith('ا'):
-                return word_norm[:-1] + 'و'
+    # ===  4.2. ناقص ألفي (Weak at END: ا) ===
+    if verb_type == "ناقص ألفي":
+        if pattern_type == 'past':
+            # Keep ا
             return word_norm
-        
-        elif pattern_type == 'imperative':
-            # ادعا + أمر → drop ا at end → ادع
-            return word_norm.rstrip('او')
-        
         elif pattern_type == 'present':
-            # يدعا → يدعو (final ا→و in present)
-            if word_norm.endswith('ا'):
-                return word_norm[:-1] + 'و'
+            # Keep ا or convert
             return word_norm
-        
-        else:
+        elif pattern_type == 'imperative':
+            # Drop weak end
+            if word_norm.endswith('ا') or word_norm.endswith('و') or word_norm.endswith('ي'):
+                return word_norm[:-1]
+            return word_norm
+        elif pattern_type == 'agent':
+            if word_norm and word_norm[-1] in 'اوي':
+                return word_norm[:-1]
+            return word_norm
+        else:  # patient
             return word_norm
     
-    # === 10. لفيف مفروق (WEAK AT START + END) ===
+    # === 5. لفيف مفروق (Weak at START + END, separated) ===
     if verb_type == "لفيف مفروق":
-        if pattern_type == 'agent':
-            # وقى + فاعل → واقي BUT rule says drop final → واق
-            return word_norm.rstrip('ي')
-        else:
+        if pattern_type == 'past':
             return word_norm
-    
-    # === 11. لفيف مقرون (WEAK AT MIDDLE + END) ===
-    if verb_type == "لفيف مقرون":
-        if pattern_type == 'agent':
-            # طوى + فاعل → طاوي BUT rule says drop final → طاو
-            return word_norm.rstrip('ي')
         elif pattern_type == 'present':
-            # يطوي / يطيي
             return word_norm
-        else:
+        elif pattern_type == 'imperative':
+            # Pattern: فِ (just ف, no ا prefix)
+            # word_norm from pattern is "اوقي", remove ا → "وقي", then just ف
+            return 'ف'
+        elif pattern_type == 'agent':
+            if word_norm and word_norm[-1] in 'اوي':
+                return word_norm[:-1]
+            return word_norm
+        else:  # patient
             return word_norm
     
-    # === DEFAULT ===
+    # === 6. لفيف مقرون واوي (Weak at START: و + END: ي) ===
+    # Patterns: فَوَى | يَفْوِي | اِفْوِ | فَاوٍ | مَفْوِيّ
+    if verb_type == "لفيف مقرون واوي":
+        if pattern_type == 'past':
+            # فَوَى (keep و and ي as ا)
+            return word_norm
+        elif pattern_type == 'present':
+            # يَفْوِي (و with fatha, ي with kasra)
+            return word_norm
+        elif pattern_type == 'imperative':
+            # اِفْوِ (drop ي from end, keep و)
+            # Pattern gives افوي, should be افو or فو
+            if word_norm.endswith('ي') or word_norm.endswith('ا'):
+                return word_norm[:-1]
+            return word_norm
+        elif pattern_type == 'agent':
+            # فَاوٍ (و from root, with nunation)
+            return word_norm
+        elif pattern_type == 'patient':
+            # مَفْوِيّ (و + ي with doubled ي)
+            return word_norm
+    
+    # === 6.1. لفيف مقرون يائي (Weak at START: ي + END: ي) ===
+    # Patterns: فَيَى | يَفْيِي | اِفْيِ | فَايٍ | مَفْيِيّ
+    if verb_type == "لفيف مقرون يائي":
+        if pattern_type == 'past':
+            # فَيَى (keep ي twice, second becomes ا)
+            return word_norm
+        elif pattern_type == 'present':
+            # يَفْيِي (both ي with kasra)
+            return word_norm
+        elif pattern_type == 'imperative':
+            # اِفْيِ (keep both ي)
+            # Pattern gives افيي, already correct
+            return word_norm
+        elif pattern_type == 'agent':
+            # فَايٍ (ي + ي with nunation)
+            return word_norm
+        elif pattern_type == 'patient':
+            # مَفْيِيّ (ي + ي with doubled ي)
+            return word_norm
+    
+    # === DEFAULT: Return normalized word ===
     return word_norm
 
 
@@ -753,8 +893,8 @@ def generate(root: str, scheme_id: str):
     word = apply_pattern(root, scheme.pattern)
     verb_type = root_data.verb_type
     
-    # Apply verb-specific transformations (pass pattern for context)
-    word = apply_verb_transformations(word, root, verb_type, scheme.pattern)
+    # Apply verb-specific transformations (pass pattern and scheme_id for context)
+    word = apply_verb_transformations(word, root, verb_type, scheme.pattern, scheme_id)
     
     # Record in history
     existing = next((d for d in root_data.derived_words if d.word == word), None)
