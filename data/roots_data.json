@@ -13,7 +13,7 @@
       },
       {
         "word": "آخذ",
-        "frequency": 1
+        "frequency": 10
       },
       {
         "word": "ماخوذ",
@@ -25,11 +25,35 @@
       },
       {
         "word": "خذ",
-        "frequency": 2
+        "frequency": 11
       },
       {
         "word": "يأخذ",
+        "frequency": 10
+      },
+      {
+        "word": "ماأوذ",
+        "frequency": 6
+      },
+      {
+        "word": "أخذ",
+        "frequency": 7
+      },
+      {
+        "word": "مأخوذ",
+        "frequency": 7
+      },
+      {
+        "word": "أاخذ",
+        "frequency": 3
+      },
+      {
+        "word": "مأووذ",
         "frequency": 1
+      },
+      {
+        "word": "وذ",
+        "frequency": 2
       }
     ]
   },
@@ -47,7 +71,7 @@
       },
       {
         "word": "آكل",
-        "frequency": 8
+        "frequency": 10
       },
       {
         "word": "ماكول",
@@ -59,7 +83,7 @@
       },
       {
         "word": "كل",
-        "frequency": 8
+        "frequency": 9
       },
       {
         "word": "أكل",
@@ -68,6 +92,14 @@
       {
         "word": "يأكل",
         "frequency": 5
+      },
+      {
+        "word": "ماأول",
+        "frequency": 1
+      },
+      {
+        "word": "مأكول",
+        "frequency": 1
       }
     ]
   },
@@ -77,11 +109,11 @@
     "derived_words": [
       {
         "word": "بع",
-        "frequency": 7
+        "frequency": 11
       },
       {
         "word": "اباع",
-        "frequency": 7
+        "frequency": 9
       },
       {
         "word": "ااع",
@@ -89,11 +121,11 @@
       },
       {
         "word": "ابع",
-        "frequency": 2
+        "frequency": 4
       },
       {
         "word": "باع",
-        "frequency": 1
+        "frequency": 3
       },
       {
         "word": "يباع",
@@ -101,10 +133,30 @@
       },
       {
         "word": "بائع",
-        "frequency": 1
+        "frequency": 6
       },
       {
         "word": "مباوع",
+        "frequency": 2
+      },
+      {
+        "word": "بااع",
+        "frequency": 4
+      },
+      {
+        "word": "مبوع",
+        "frequency": 4
+      },
+      {
+        "word": "يبوع",
+        "frequency": 2
+      },
+      {
+        "word": "مبووع",
+        "frequency": 2
+      },
+      {
+        "word": "بوع",
         "frequency": 1
       }
     ]
@@ -115,7 +167,7 @@
     "derived_words": [
       {
         "word": "بقي",
-        "frequency": 6
+        "frequency": 9
       },
       {
         "word": "يبقى",
@@ -123,19 +175,19 @@
       },
       {
         "word": "ابق",
-        "frequency": 11
+        "frequency": 15
       },
       {
         "word": "باق",
-        "frequency": 9
+        "frequency": 10
       },
       {
         "word": "مبقوي",
-        "frequency": 6
+        "frequency": 9
       },
       {
         "word": "يبقي",
-        "frequency": 2
+        "frequency": 5
       },
       {
         "word": "ابقي",
@@ -143,6 +195,18 @@
       },
       {
         "word": "يبقو",
+        "frequency": 4
+      },
+      {
+        "word": "با=",
+        "frequency": 5
+      },
+      {
+        "word": "مبقي",
+        "frequency": 4
+      },
+      {
+        "word": "باقي",
         "frequency": 4
       }
     ]
@@ -165,7 +229,7 @@
       },
       {
         "word": "خارج",
-        "frequency": 1
+        "frequency": 3
       },
       {
         "word": "مخروج",
@@ -179,6 +243,22 @@
     "derived_words": [
       {
         "word": "ادرس",
+        "frequency": 2
+      },
+      {
+        "word": "مدروس",
+        "frequency": 1
+      },
+      {
+        "word": "درس",
+        "frequency": 1
+      },
+      {
+        "word": "يدرس",
+        "frequency": 1
+      },
+      {
+        "word": "دارس",
         "frequency": 1
       }
     ]
@@ -209,7 +289,31 @@
       },
       {
         "word": "مدعوا",
+        "frequency": 2
+      },
+      {
+        "word": "دا=ٍ",
         "frequency": 1
+      },
+      {
+        "word": "دا=",
+        "frequency": 1
+      },
+      {
+        "word": "داعا",
+        "frequency": 3
+      },
+      {
+        "word": "مدعا",
+        "frequency": 2
+      },
+      {
+        "word": "مدعو",
+        "frequency": 3
+      },
+      {
+        "word": "داعي",
+        "frequency": 2
       }
     ]
   },
@@ -225,6 +329,22 @@
       {
         "word": "ارم",
         "frequency": 2
+      },
+      {
+        "word": "را=ٍ",
+        "frequency": 1
+      },
+      {
+        "word": "مرموي",
+        "frequency": 1
+      },
+      {
+        "word": "مرمي",
+        "frequency": 1
+      },
+      {
+        "word": "رامي",
+        "frequency": 1
       }
     ]
   },
@@ -258,19 +378,27 @@
       },
       {
         "word": "سأل",
-        "frequency": 4
+        "frequency": 5
       },
       {
         "word": "ساأل",
-        "frequency": 2
+        "frequency": 3
       },
       {
         "word": "سائل",
-        "frequency": 1
+        "frequency": 2
       },
       {
         "word": "اسأل",
-        "frequency": 1
+        "frequency": 3
+      },
+      {
+        "word": "مسأول",
+        "frequency": 3
+      },
+      {
+        "word": "يسأل",
+        "frequency": 2
       }
     ]
   },
@@ -288,23 +416,31 @@
       },
       {
         "word": "طوي",
-        "frequency": 5
+        "frequency": 6
       },
       {
         "word": "يطوي",
-        "frequency": 5
+        "frequency": 8
       },
       {
         "word": "طاو",
-        "frequency": 5
+        "frequency": 6
       },
       {
         "word": "اطوي",
-        "frequency": 1
+        "frequency": 4
       },
       {
         "word": "ف",
         "frequency": 3
+      },
+      {
+        "word": "مطوّي",
+        "frequency": 4
+      },
+      {
+        "word": "طاو=",
+        "frequency": 16
       }
     ]
   },
@@ -314,23 +450,23 @@
     "derived_words": [
       {
         "word": "قال",
-        "frequency": 7
+        "frequency": 8
       },
       {
         "word": "يقول",
-        "frequency": 2
+        "frequency": 6
       },
       {
         "word": "قل",
-        "frequency": 3
+        "frequency": 7
       },
       {
         "word": "قائل",
-        "frequency": 9
+        "frequency": 13
       },
       {
         "word": "مقول",
-        "frequency": 7
+        "frequency": 10
       },
       {
         "word": "يقال",
@@ -338,7 +474,7 @@
       },
       {
         "word": "اقال",
-        "frequency": 1
+        "frequency": 2
       },
       {
         "word": "ال",
@@ -346,7 +482,23 @@
       },
       {
         "word": "اقل",
-        "frequency": 3
+        "frequency": 6
+      },
+      {
+        "word": "مقاول",
+        "frequency": 1
+      },
+      {
+        "word": "قاال",
+        "frequency": 2
+      },
+      {
+        "word": "مقوول",
+        "frequency": 5
+      },
+      {
+        "word": "قول",
+        "frequency": 2
       }
     ]
   },
@@ -382,19 +534,23 @@
     "derived_words": [
       {
         "word": "ممدود",
-        "frequency": 1
+        "frequency": 2
       },
       {
         "word": "مادد",
-        "frequency": 1
+        "frequency": 2
       },
       {
         "word": "يمدد",
-        "frequency": 1
+        "frequency": 2
       },
       {
         "word": "امدد",
         "frequency": 1
+      },
+      {
+        "word": "مدد",
+        "frequency": 2
       }
     ]
   },
@@ -405,6 +561,14 @@
       {
         "word": "املا",
         "frequency": 1
+      },
+      {
+        "word": "مالأ",
+        "frequency": 1
+      },
+      {
+        "word": "مملوأ",
+        "frequency": 1
       }
     ]
   },
@@ -414,11 +578,11 @@
     "derived_words": [
       {
         "word": "واجد",
-        "frequency": 7
+        "frequency": 9
       },
       {
         "word": "وجد",
-        "frequency": 7
+        "frequency": 8
       },
       {
         "word": "يوجد",
@@ -434,11 +598,15 @@
       },
       {
         "word": "موجود",
-        "frequency": 6
+        "frequency": 7
       },
       {
         "word": "يجد",
         "frequency": 4
+      },
+      {
+        "word": "جد",
+        "frequency": 9
       }
     ]
   },
@@ -452,18 +620,34 @@
       },
       {
         "word": "وقي",
-        "frequency": 1
+        "frequency": 2
       },
       {
         "word": "يوقي",
-        "frequency": 1
+        "frequency": 3
       },
       {
         "word": "ف",
-        "frequency": 1
+        "frequency": 3
       },
       {
         "word": "موقوي",
+        "frequency": 5
+      },
+      {
+        "word": "وا=",
+        "frequency": 1
+      },
+      {
+        "word": "وا",
+        "frequency": 3
+      },
+      {
+        "word": "ق",
+        "frequency": 1
+      },
+      {
+        "word": "واقٍ",
         "frequency": 1
       }
     ]

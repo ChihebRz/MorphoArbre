@@ -29,10 +29,10 @@ app.add_middleware(
 def normalize_arabic(text: str) -> str:
     """Standardize Arabic text for robust comparison."""
     if not text: return ""
-    # Remove diacritics (harakat)
-    text = re.sub(r'[\u064B-\u0652]', '', text)
-    # Standardize Alef
-    text = re.sub(r'[أإآ]', 'ا', text)
+    # Remove short vowels / shadda / sukun but KEEP tanween (ً ٌ ٍ)
+    text = re.sub(r'[\u064E-\u0652]', '', text)
+    # Keep hamza (أ إ آ) - only normalize shapes, do NOT convert to ا
+    text = text.replace('إ', 'أ').replace('آ', 'أ')
     # Standardize Taa Marbuta to Haa
     text = text.replace('ة', 'ه')
     # Standardize Yaa / Alef Maqsura
@@ -49,10 +49,28 @@ def display_arabic(text: str) -> str:
     except:
         return text
 
-def apply_pattern(root: str, pattern: str) -> str:
-    """Inject a 3-letter root into a pattern."""
+def expand_ajwaf_root_for_pattern(root: str, verb_type: str) -> str:
+    """
+    For أجوف roots stored as past (قال, باع), expand middle ا to و/ي.
+    فاعل with قول → قاول; with بيع → بائع. Then rules ou→ائ, ai→ائ apply.
+    """
+    if len(root) != 3 or root[1] != 'ا':
+        return root
+    if "أجوف" not in verb_type:
+        return root
+    r1, r3 = root[0], root[2]
+    if "واوي" in verb_type:
+        return r1 + "و" + r3  # قال → قول
+    if "يائي" in verb_type:
+        return r1 + "ي" + r3  # باع → بيع
+    return r1 + "و" + r3  # default أجوف
+
+
+def apply_pattern(root: str, pattern: str, verb_type: Optional[str] = None) -> str:
+    """Inject a 3-letter root into a pattern. For أجوف, uses expanded root (قول not قال)."""
     if len(root) != 3:
         return ""
+    root = expand_ajwaf_root_for_pattern(root, verb_type or "")
     r1, r2, r3 = root[0], root[1], root[2]
     res = []
     for char in pattern:
@@ -226,7 +244,17 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
             if char in ('أ', 'إ', 'آ', 'ء'):
                 return text[:pos] + char + text[pos+1:]
         return text
-    
+
+    # Helper: fix ناقص مفعول - safely remove inserted و before last root letter
+    def fix_naqis_patient(w: str, r: str) -> str:
+        # Only remove an internal و; never touch a final و
+        if len(w) < 3:
+            return w
+        for i in range(len(w) - 1):
+            if w[i] == 'و':
+                return w[:i] + w[i+1:]
+        return w
+
     # === 0. صحيح سالم ===
     if verb_type == "صحيح سالم":
         return word_norm
@@ -240,22 +268,29 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
     # === 1.5. مهموز الفاء (Hamza at START) ===
     if verb_type == "مهموز الفاء":
         if pattern_type == 'past':
-            # أَفَعَلَ - restore hamza at start
             return restore_hamza(word_norm, 0, r1_orig)
+
         elif pattern_type == 'present':
-            # يَأْفْعَلُ - restore hamza at position 1 (after ي)
             if word_norm and word_norm[0] == 'ي':
                 return word_norm[0] + restore_hamza(word_norm[1:], 0, r1_orig)
             return word_norm
+
         elif pattern_type == 'imperative':
-            # عْلْ - keep last 2 chars only
             return word_norm[-2:] if len(word_norm) >= 2 else word_norm
+
         elif pattern_type == 'agent':
-            # فَاعِل - اا → آ
-            return ('آ' + word_norm[2:]) if word_norm.startswith('اا') else word_norm
-        else:  # patient
-            # مَفْعُول - restore hamza at position 2
-            return word_norm[:2] + restore_hamza(word_norm[2:], 0, r1_orig) if len(word_norm) >= 3 else word_norm
+            # Handle important cases: أاكل / ااكل → آكل (only for مهموز الفاء + فاعل)
+            if len(word_norm) >= 2:
+                if (word_norm.startswith('أا') or word_norm.startswith('اا')) and r1_orig == 'أ':
+                    return 'آ' + word_norm[2:]
+
+            return word_norm
+
+        elif pattern_type == 'patient':
+            # مفعول → مأكول: hamza as first root letter (after م)
+            if len(word_norm) >= 2:
+                return word_norm[0] + r1_orig + word_norm[2:]
+            return word_norm
     
     # === 1.6. مهموز العين (Hamza at MIDDLE) ===
     if verb_type == "مهموز العين":
@@ -273,11 +308,15 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
                 return word_norm[0:2] + restore_hamza(word_norm[2:], 0, r2_orig)
             return word_norm
         elif pattern_type == 'agent':
-            # فَائِل - pattern gives "سَاأِل" which normalizes to "ساال"
-            # We need "سائل" - word_norm = [ف] + [ا] + [ا from hamza] + [اللام]
-            # Replace the two alefs (ا+ا) with (ا+ئ) 
-            if len(word_norm) >= 3 and word_norm[1] == 'ا' and word_norm[2] == 'ا':
-                return word_norm[0] + 'ائ' + word_norm[3:]
+            # Fix مهموز العين in فاعل: ساأل / ساال → سائل
+            # Rule: ا + (ء or normalized ا from hamza) → ائ
+            if len(word_norm) >= 3:
+                # Case 1: normalized form (ساال)
+                if word_norm[1] == 'ا' and word_norm[2] == 'ا':
+                    return word_norm[0] + 'ائ' + word_norm[3:]
+                # Case 2: original root has hamza as عين (سأل، قرأ، ملأ)
+                if word_norm[1] == 'ا' and root[1] in ['ء', 'أ', 'إ', 'آ']:
+                    return word_norm[0] + 'ائ' + word_norm[3:]
             return word_norm
         else:  # patient
             # مَفْؤُول - hamza in position 2
@@ -394,13 +433,13 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
                 return word_norm[:-1]
             return word_norm
         elif pattern_type == 'agent':
-            # فَاعٍ with nunation
-            if word_norm and word_norm[-1] in 'اوي':
-                return word_norm[:-1]
+            # ناقص واوي في فاعل: دعا → داعي (لا نحذف الحرف الأخير)
             return word_norm
         elif pattern_type == 'patient':
-            # مَفْعُوّ with doubled letter at end
-            return word_norm
+            # مدعو (remove extra و if duplicated at end)
+            if word_norm.endswith('وو'):
+                return word_norm[:-1]
+            return fix_naqis_patient(word_norm, root)
     
     # === 4.1. ناقص يائي (Weak at END: ي/ى) ===
     # Patterns: فَعَى | يَفْعِي | اِفْعِ | فَاعٍ | مَفْعِيّ
@@ -418,13 +457,11 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
                 return word_norm[:-1]
             return word_norm
         elif pattern_type == 'agent':
-            # فَاعٍ with nunation
-            if word_norm and word_norm[-1] in 'اوي':
-                return word_norm[:-1]
+            # ناقص يائي في اسم الفاعل: بقي → باقي (لا نحذف الحرف الأخير)
             return word_norm
         elif pattern_type == 'patient':
-            # مَفْعِيّ with doubled ي at end
-            return word_norm
+            # مبقوي → مبقي (remove inserted و before last root letter)
+            return fix_naqis_patient(word_norm, root)
     
     # ===  4.2. ناقص ألفي (Weak at END: ا) ===
     if verb_type == "ناقص ألفي":
@@ -440,10 +477,18 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
                 return word_norm[:-1]
             return word_norm
         elif pattern_type == 'agent':
-            if word_norm and word_norm[-1] in 'اوي':
-                return word_norm[:-1]
+            # ناقص ألفي في اسم الفاعل: دعا → داعي (ا → ي)
+            if word_norm.endswith('ا'):
+                return word_norm[:-1] + 'ي'
             return word_norm
-        else:  # patient
+        elif pattern_type == 'patient':
+            # ناقص ألفي: دعا → مدعو ، رمى → مرمي
+            # 1) Drop final weak ا/ي
+            if word_norm.endswith(('ا', 'ي')):
+                word_norm = word_norm[:-1]
+            # 2) Ensure it ends with و
+            if not word_norm.endswith('و'):
+                word_norm += 'و'
             return word_norm
     
     # === 5. لفيف مفروق (Weak at START + END, separated) ===
@@ -453,12 +498,14 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
         elif pattern_type == 'present':
             return word_norm
         elif pattern_type == 'imperative':
-            # Pattern: فِ (just ف, no ا prefix)
-            # word_norm from pattern is "اوقي", remove ا → "وقي", then just ف
-            return 'ف'
+            # لفيف مفروق في الأمر: نحذف الأول والآخر ونبقي العين فقط (وقى → ق)
+            if len(root) == 3:
+                return root[1]
+            return word_norm
         elif pattern_type == 'agent':
-            if word_norm and word_norm[-1] in 'اوي':
-                return word_norm[:-1]
+            # لفيف مفروق في اسم الفاعل: وقى → واقٍ
+            if len(word_norm) >= 2 and root[2] in ['و', 'ي', 'ى']:
+                return word_norm[:-1] + 'ٍ'
             return word_norm
         else:  # patient
             return word_norm
@@ -479,7 +526,9 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
                 return word_norm[:-1]
             return word_norm
         elif pattern_type == 'agent':
-            # فَاوٍ (و from root, with nunation)
+            # لفيف مقرون واوي في اسم الفاعل: طاوي → طاوٍ
+            if word_norm.endswith("وي"):
+                return word_norm[:-1] + "ٍ"
             return word_norm
         elif pattern_type == 'patient':
             # مَفْوِيّ (و + ي with doubled ي)
@@ -507,6 +556,119 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
     
     # === DEFAULT: Return normalized word ===
     return word_norm
+
+
+# --- Irregular Verb Rules (I'Lal & Ibdal) from verb_rules.txt ---
+
+VERB_RULES_TXT_FILE = "data/verb_rules.txt"
+_IRREGULAR_RULES: Dict[str, List[tuple]] = {}  # key -> [(op, args), ...]
+
+def _verb_type_to_rule_prefix(verb_type: str) -> Optional[str]:
+    """Map verb type to rule key prefix (mithal, ajwaf, naqis, lafif, mahmouz, sahih)."""
+    if not verb_type:
+        return None
+    if "مثال" in verb_type:
+        return "mithal"
+    if "أجوف" in verb_type:
+        return "ajwaf"
+    if "ناقص" in verb_type:
+        return "naqis"
+    if "لفيف" in verb_type:
+        return "lafif"
+    if "مهموز" in verb_type:
+        return "mahmouz"
+    if "صحيح" in verb_type or "مضاعف" in verb_type:
+        return "sahih"
+    return None
+
+
+def _load_irregular_rules():
+    """Load and parse verb_rules.txt into _IRREGULAR_RULES."""
+    global _IRREGULAR_RULES
+    _IRREGULAR_RULES = {}
+    if not os.path.exists(VERB_RULES_TXT_FILE):
+        return
+    try:
+        with open(VERB_RULES_TXT_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if ":" not in line:
+                    continue
+                key, ops_str = line.split(":", 1)
+                key = key.strip()
+                ops = []
+                for op in ops_str.split(";"):
+                    op = op.strip()
+                    if not op:
+                        continue
+                    # Ignore malformed ops that start with '=' (e.g. '=طاو')
+                    if op.startswith("="):
+                        continue
+                    if op.startswith("replace="):
+                        # replace=A>B (B may be empty, e.g. replace=او>)
+                        part = op[8:].strip()
+                        if ">" in part:
+                            a, b = part.split(">", 1)
+                            a = a.strip()
+                            b = b.strip()
+                            # Skip empty source (replace=>X would corrupt everything)
+                            if a:
+                                ops.append(("replace", (a, b)))
+                    elif op.startswith("replace_final="):
+                        # replace_final=B
+                        b = op[13:].strip()
+                        ops.append(("replace_final", (b,)))
+                # Store even empty ops (e.g. sahih_يفعل: = no change)
+                _IRREGULAR_RULES[key] = ops
+    except Exception as e:
+        print(f"Error loading verb_rules.txt: {e}")
+
+
+def _apply_irregular_rules(word: str, root: str, verb_type: str, scheme_id: str) -> str:
+    """
+    Apply irregular verb rules from verb_rules.txt.
+    Order: 1) exception_{root}_{pattern}, 2) {type}_{pattern}, 3) default (no change).
+    Called after apply_verb_transformations.
+    """
+    if not word:
+        return word
+
+    # Skip irregular rules for لفيف مفروق + فاعل (اسم الفاعل يعالج في المنطق الأساسي)
+    if verb_type == "لفيف مفروق" and scheme_id == "فاعل":
+        return word
+
+    # 1. Exception first (e.g. exception_قال_فاعل, exception_باع_مفعول)
+    exc_key = f"exception_{root}_{scheme_id}"
+    if exc_key in _IRREGULAR_RULES:
+        for op, args in _IRREGULAR_RULES[exc_key]:
+            if op == "replace":
+                a, b = args
+                if a:
+                    word = word.replace(a, b)
+            elif op == "replace_final" and len(word) >= 1:
+                word = word[:-1] + args[0]
+        return word
+
+    # 2. Apply verb-type + scheme rules
+    prefix = _verb_type_to_rule_prefix(verb_type)
+    if not prefix:
+        return word
+
+    rule_key = f"{prefix}_{scheme_id}"
+    if rule_key not in _IRREGULAR_RULES:
+        return word
+
+    for op, args in _IRREGULAR_RULES[rule_key]:
+        if op == "replace":
+            a, b = args
+            if a:
+                word = word.replace(a, b)
+        elif op == "replace_final" and len(word) >= 1:
+            word = word[:-1] + args[0]
+
+    return word
 
 
 # --- Data Structures ---
@@ -662,6 +824,8 @@ VERB_RULES_FILE = "data/rules_verbs.json"
 
 # Load verb rules on startup
 VERB_RULES = []
+
+
 def load_verb_rules():
     """Load verb type rules from JSON file."""
     global VERB_RULES
@@ -820,6 +984,7 @@ if not load_schemes_from_disk():
 
 # Load verb rules on startup
 load_verb_rules()
+_load_irregular_rules()
 
 # --- API Endpoints ---
 
@@ -890,11 +1055,15 @@ def generate(root: str, scheme_id: str):
     if not root_data:
         raise HTTPException(404, "Root not found")
     
-    word = apply_pattern(root, scheme.pattern)
     verb_type = root_data.verb_type
+    word = apply_pattern(root, scheme.pattern, verb_type)
     
     # Apply verb-specific transformations (pass pattern and scheme_id for context)
     word = apply_verb_transformations(word, root, verb_type, scheme.pattern, scheme_id)
+    # Apply irregular verb rules from verb_rules.txt (I'Lal & Ibdal)
+    word = _apply_irregular_rules(word, root, verb_type, scheme_id)
+    # Final safety: strip stray '=' from rule parsing glitches
+    word = word.replace("=", "").strip()
     
     # Record in history
     existing = next((d for d in root_data.derived_words if d.word == word), None)
@@ -922,10 +1091,14 @@ def validate(word: str, root_str: str):
         raise HTTPException(404, "Root not found")
     
     schemes = scheme_table.get_all()
+    verb_type = root_data.verb_type or ""
     
     found_scheme = None
     for s in schemes:
-        generated = apply_pattern(root_str, s.pattern)
+        generated = apply_pattern(root_str, s.pattern, verb_type)
+        generated = apply_verb_transformations(generated, root_str, verb_type, s.pattern, s.id)
+        generated = _apply_irregular_rules(generated, root_str, verb_type, s.id)
+        generated = generated.replace("=", "").strip()
         if normalize_arabic(generated) == norm_input:
             found_scheme = s.id
             break
