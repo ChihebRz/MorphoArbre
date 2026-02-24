@@ -337,19 +337,19 @@ def apply_verb_transformations(word: str, root: str, verb_type: str, pattern: st
             # Keep: وَفَعَلَ (weak و at start)
             return word_norm
         elif pattern_type == 'present':
-            # يَفْعِلُ (drop و, keep ي from pattern)
-            # Pattern gives يَوْعَد, should drop و → يعد
-            if len(word_norm) >= 2 and word_norm[1] in ['و', 'ي']:
-                return word_norm[0] + word_norm[2:]
+            # يَفْعِلُ (drop weak و, keep valid present prefix)
+            # Example: يوجد → يجد
+            if len(word_norm) >= 3:
+                prefix = word_norm[0]
+                if prefix in ['ي', 'ت', 'ن', 'أ'] and word_norm[1] == 'و':
+                    return prefix + word_norm[2:]
             return word_norm
         elif pattern_type == 'imperative':
             # فِعْلْ (drop ا prefix AND weak و)
             # Pattern gives افْعَل, word is اوعد
             # Result: عد (remove ا and و)
-            if len(word_norm) >= 3 and word_norm[0] == 'ا' and word_norm[1] in ['و', 'ي']:
+            if len(word_norm) >= 3 and word_norm.startswith('ا') and word_norm[1] == 'و':
                 return word_norm[2:]
-            elif len(word_norm) >= 2 and word_norm[1] in ['و', 'ي']:
-                return word_norm[0] + word_norm[2:]
             return word_norm
         else:  # agent, patient
             return word_norm
@@ -676,6 +676,8 @@ def _apply_irregular_rules(word: str, root: str, verb_type: str, scheme_id: str)
 class DerivedWord(BaseModel):
     word: str
     frequency: int = 1
+    scheme_id: Optional[str] = None
+    pattern: Optional[str] = None
 
 class RootNodeData(BaseModel):
     root: str
@@ -812,6 +814,14 @@ class HashTable:
     def get_all(self) -> List[MorphologicalScheme]:
         return [s for b in self.buckets for s in b]
 
+    def delete(self, id: str) -> bool:
+        idx = self._hash(id)
+        for i, s in enumerate(self.buckets[idx]):
+            if s.id == id:
+                del self.buckets[idx][i]
+                return True
+        return False
+
 # --- App State & Persistence ---
 
 root_tree = AVLTree()
@@ -819,6 +829,7 @@ scheme_table = HashTable()
 
 # Updated paths to use data/ folder
 ROOTS_DATA_FILE = "data/roots_data.json"
+ROOTS_TXT_FILE = "data/racine.txt"
 SCHEMES_DATA_FILE = "data/schemes_data.json"
 VERB_RULES_FILE = "data/rules_verbs.json"
 
@@ -848,15 +859,22 @@ def get_verb_info(verb_type: str) -> Optional[VerbTypeInfo]:
 
 
 def save_roots_to_disk():
-    """Persist all roots (with historique) to a JSON file."""
+    """Persist all roots to JSON and plain-text files."""
     data = []
+    roots = []
     for r in root_tree.get_all():
+        roots.append(r.root)
         # r is RootNodeData
         data.append({
             "root": r.root,
             "verb_type": r.verb_type,
             "derived_words": [
-                {"word": dw.word, "frequency": dw.frequency}
+                {
+                    "word": dw.word,
+                    "frequency": dw.frequency,
+                    "scheme_id": dw.scheme_id,
+                    "pattern": dw.pattern,
+                }
                 for dw in r.derived_words
             ]
         })
@@ -864,6 +882,10 @@ def save_roots_to_disk():
     os.makedirs("data", exist_ok=True)
     with open(ROOTS_DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+    with open(ROOTS_TXT_FILE, "w", encoding="utf-8") as f:
+        f.write("\n".join(roots))
+        if roots:
+            f.write("\n")
 
 
 def load_roots_from_disk():
@@ -887,7 +909,12 @@ def load_roots_from_disk():
         # Always recalculate verb_type to ensure it's current
         node_data.verb_type = detect_verb_type(root_str)
         node_data.derived_words = [
-            DerivedWord(word=dw.get("word", ""), frequency=dw.get("frequency", 1))
+            DerivedWord(
+                word=dw.get("word", ""),
+                frequency=dw.get("frequency", 1),
+                scheme_id=dw.get("scheme_id"),
+                pattern=dw.get("pattern"),
+            )
             for dw in item.get("derived_words", [])
         ]
     return True
@@ -972,9 +999,50 @@ def init_schemes_in_memory():
         scheme_table.put(MorphologicalScheme(id=scheme_id, pattern=pattern, transformationRule=rule))
 
 
+def _backfill_history_patterns() -> bool:
+    """Backfill missing scheme/pattern metadata in existing derived_words history."""
+    changed = False
+    schemes = scheme_table.get_all()
+    if not schemes:
+        return False
+
+    for root_data in root_tree.get_all():
+        verb_type = root_data.verb_type or ""
+        for dw in root_data.derived_words:
+            if dw.scheme_id and dw.pattern:
+                continue
+
+            target = normalize_arabic(dw.word)
+            matched_scheme = None
+            matched_pattern = None
+
+            for s in schemes:
+                generated = apply_pattern(root_data.root, s.pattern, verb_type)
+                generated = apply_verb_transformations(generated, root_data.root, verb_type, s.pattern, s.id)
+                generated = _apply_irregular_rules(generated, root_data.root, verb_type, s.id)
+                generated = generated.replace("=", "").strip()
+
+                if normalize_arabic(generated) == target:
+                    matched_scheme = s.id
+                    matched_pattern = s.pattern
+                    break
+
+            if matched_scheme and not dw.scheme_id:
+                dw.scheme_id = matched_scheme
+                changed = True
+            if matched_pattern and not dw.pattern:
+                dw.pattern = matched_pattern
+                changed = True
+
+    return changed
+
+
 # On startup: try to load roots from disk, otherwise use defaults and save them
 if not load_roots_from_disk():
     init_roots_in_memory()
+    save_roots_to_disk()
+else:
+    # Keep plain-text root list synchronized with loaded JSON data
     save_roots_to_disk()
 
 # On startup: try to load schemes from disk, otherwise use defaults and save them
@@ -985,6 +1053,10 @@ if not load_schemes_from_disk():
 # Load verb rules on startup
 load_verb_rules()
 _load_irregular_rules()
+
+# Backfill old history entries missing scheme/pattern metadata
+if _backfill_history_patterns():
+    save_roots_to_disk()
 
 # --- API Endpoints ---
 
@@ -1044,6 +1116,32 @@ def add_scheme(scheme: MorphologicalScheme):
     save_schemes_to_disk()
     return {"status": "ok"}
 
+
+@app.put("/api/schemes/{scheme_id}")
+def update_scheme(scheme_id: str, scheme: MorphologicalScheme):
+    existing = scheme_table.get(scheme_id)
+    if not existing:
+        raise HTTPException(404, "Scheme not found")
+
+    # If ID changes, ensure new ID is available
+    if scheme.id != scheme_id and scheme_table.get(scheme.id):
+        raise HTTPException(409, "Target scheme ID already exists")
+
+    if scheme.id != scheme_id:
+        scheme_table.delete(scheme_id)
+
+    scheme_table.put(scheme)
+    save_schemes_to_disk()
+    return {"status": "ok"}
+
+
+@app.delete("/api/schemes/{scheme_id}")
+def delete_scheme(scheme_id: str):
+    if not scheme_table.delete(scheme_id):
+        raise HTTPException(404, "Scheme not found")
+    save_schemes_to_disk()
+    return {"status": "ok"}
+
 @app.post("/api/generate")
 def generate(root: str, scheme_id: str):
     """Generate a word by applying a scheme to a root."""
@@ -1066,11 +1164,16 @@ def generate(root: str, scheme_id: str):
     word = word.replace("=", "").strip()
     
     # Record in history
-    existing = next((d for d in root_data.derived_words if d.word == word), None)
+    existing = next(
+        (d for d in root_data.derived_words if d.word == word and d.scheme_id == scheme_id),
+        None
+    )
     if existing:
         existing.frequency += 1
     else:
-        root_data.derived_words.append(DerivedWord(word=word))
+        root_data.derived_words.append(
+            DerivedWord(word=word, scheme_id=scheme_id, pattern=scheme.pattern)
+        )
     save_roots_to_disk()
     
     return {
@@ -1094,6 +1197,7 @@ def validate(word: str, root_str: str):
     verb_type = root_data.verb_type or ""
     
     found_scheme = None
+    found_pattern = None
     for s in schemes:
         generated = apply_pattern(root_str, s.pattern, verb_type)
         generated = apply_verb_transformations(generated, root_str, verb_type, s.pattern, s.id)
@@ -1101,15 +1205,21 @@ def validate(word: str, root_str: str):
         generated = generated.replace("=", "").strip()
         if normalize_arabic(generated) == norm_input:
             found_scheme = s.id
+            found_pattern = s.pattern
             break
             
     if found_scheme:
         # Record in history
-        existing = next((d for d in root_data.derived_words if d.word == word), None)
+        existing = next(
+            (d for d in root_data.derived_words if d.word == word and d.scheme_id == found_scheme),
+            None
+        )
         if existing:
             existing.frequency += 1
         else:
-            root_data.derived_words.append(DerivedWord(word=word))
+            root_data.derived_words.append(
+                DerivedWord(word=word, scheme_id=found_scheme, pattern=found_pattern)
+            )
         save_roots_to_disk()
         return {
             "isValid": True,

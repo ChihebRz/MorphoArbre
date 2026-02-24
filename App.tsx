@@ -19,8 +19,7 @@ import {
   AlertCircle,
   Save,
   Loader2,
-  BookOpen,
-  Zap
+  BookOpen
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8000/api';
@@ -41,7 +40,11 @@ const App: React.FC = () => {
   const [valWord, setValWord] = useState("");
   const [valRoot, setValRoot] = useState("");
   const [valResult, setValResult] = useState<any>(null);
+  const [historyRoot, setHistoryRoot] = useState("");
+  const [historyByRoot, setHistoryByRoot] = useState<RootNodeData | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [newScheme, setNewScheme] = useState({ id: '', pattern: '', rule: '' });
+  const [editingSchemeId, setEditingSchemeId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -57,7 +60,13 @@ const App: React.FC = () => {
       const rawRoots = await rRes.json();
       const normalizedRoots: RootNodeData[] = rawRoots.map((r: any) => ({
         root: r.root,
-        derivedWords: r.derivedWords || r.derived_words || [],
+        derivedWords: (r.derivedWords || r.derived_words || []).map((dw: any) => ({
+          word: dw.word,
+          frequency: dw.frequency,
+          timestamp: dw.timestamp,
+          scheme_id: dw.scheme_id,
+          pattern: dw.pattern
+        })),
         verb_type: r.verb_type
       }));
 
@@ -83,15 +92,36 @@ const App: React.FC = () => {
     fetchData();
   };
 
-  const handleAddScheme = async () => {
+  const handleSaveScheme = async () => {
     if (!newScheme.id || !newScheme.pattern) return;
     setLoading(true);
-    await fetch(`${API_BASE}/schemes`, {
-      method: 'POST',
+    const isEditing = !!editingSchemeId;
+    await fetch(isEditing ? `${API_BASE}/schemes/${encodeURIComponent(editingSchemeId)}` : `${API_BASE}/schemes`, {
+      method: isEditing ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...newScheme, transformationRule: newScheme.rule })
     });
     setNewScheme({ id: '', pattern: '', rule: '' });
+    setEditingSchemeId(null);
+    fetchData();
+  };
+
+  const handleEditScheme = (scheme: MorphologicalScheme) => {
+    setEditingSchemeId(scheme.id);
+    setNewScheme({
+      id: scheme.id,
+      pattern: scheme.pattern,
+      rule: scheme.transformationRule
+    });
+  };
+
+  const handleDeleteScheme = async (id: string) => {
+    setLoading(true);
+    await fetch(`${API_BASE}/schemes/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (editingSchemeId === id) {
+      setEditingSchemeId(null);
+      setNewScheme({ id: '', pattern: '', rule: '' });
+    }
     fetchData();
   };
 
@@ -113,6 +143,32 @@ const App: React.FC = () => {
     fetchData(); // Refresh history
   };
 
+  const handleHistoryByRoot = async () => {
+    if (!historyRoot || historyRoot.trim().length !== 3) return;
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/roots/${encodeURIComponent(historyRoot.trim())}`);
+      if (!res.ok) {
+        setHistoryByRoot(null);
+        return;
+      }
+      const data = await res.json();
+      setHistoryByRoot({
+        root: data.root,
+        derivedWords: (data.derivedWords || data.derived_words || []).map((dw: any) => ({
+          word: dw.word,
+          frequency: dw.frequency,
+          timestamp: dw.timestamp,
+          scheme_id: dw.scheme_id,
+          pattern: dw.pattern
+        })),
+        verb_type: data.verb_type
+      });
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
   const getVerbTypeInfo = (type: string) => {
     return verbTypes.find(v => v.type === type);
   };
@@ -122,7 +178,7 @@ const App: React.FC = () => {
       
       {activeTab === TabType.DASHBOARD && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4" dir="rtl">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-4">
                 <div className="bg-emerald-100 p-3 rounded-xl text-emerald-600"><Database className="w-6 h-6" /></div>
@@ -137,20 +193,6 @@ const App: React.FC = () => {
               </div>
               <h3 className="text-3xl font-bold text-slate-800">{schemes.length}</h3>
               <p className="text-slate-500 text-sm mt-1">الأوزان (Hash Python)</p>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <div className="flex items-center justify-between mb-4">
-                <div className="bg-amber-100 p-3 rounded-xl text-amber-600"><BookOpen className="w-6 h-6" /></div>
-              </div>
-              <h3 className="text-3xl font-bold text-slate-800">{verbTypes.length}</h3>
-              <p className="text-slate-500 text-sm mt-1">أنواع الأفعال</p>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <div className="flex items-center justify-between mb-4">
-                <div className="bg-blue-100 p-3 rounded-xl text-blue-600"><Zap className="w-6 h-6" /></div>
-              </div>
-              <h3 className="text-3xl font-bold text-slate-800">API</h3>
-              <p className="text-slate-500 text-sm mt-1">FastAPI مفعل</p>
             </div>
           </div>
 
@@ -285,7 +327,9 @@ const App: React.FC = () => {
                   {(selectedRoot.derivedWords || []).map((dw, i) => (
                     <div key={i} className="bg-slate-50 p-2 rounded text-right">
                       <p className="font-arabic text-sm">{dw.word}</p>
-                      <p className="text-xs text-slate-500">{dw.frequency}x</p>
+                      <p className="text-xs text-slate-500">
+                        {dw.frequency}x{dw.scheme_id ? ` • ${dw.scheme_id}` : ''}{dw.pattern ? ` (${dw.pattern})` : ''}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -320,11 +364,22 @@ const App: React.FC = () => {
                  />
                </div>
               <button 
-                onClick={handleAddScheme}
+                onClick={handleSaveScheme}
                 className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
               >
-                <Save className="w-4 h-4" /> {schemes.some(s => s.id === newScheme.id) ? 'تحديث الوزن' : 'حفظ في جدول Hash'}
+                <Save className="w-4 h-4" /> {editingSchemeId ? 'تعديل الوزن' : 'إضافة الوزن'}
               </button>
+              {editingSchemeId && (
+                <button
+                  onClick={() => {
+                    setEditingSchemeId(null);
+                    setNewScheme({ id: '', pattern: '', rule: '' });
+                  }}
+                  className="w-full mt-2 bg-slate-100 text-slate-700 py-3 rounded-xl font-bold"
+                >
+                  إلغاء التعديل
+                </button>
+              )}
            </div>
 
            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
@@ -338,18 +393,31 @@ const App: React.FC = () => {
                        <th className="px-4 py-3 text-right">المعرّف</th>
                        <th className="px-4 py-3 text-right">الوزن</th>
                        <th className="px-4 py-3 text-right">القاعدة</th>
+                       <th className="px-4 py-3 text-right">إجراءات</th>
                     </tr>
                  </thead>
                  <tbody className="divide-y divide-slate-100">
                     {schemes.map(s => (
-                       <tr
-                         key={s.id}
-                         className="hover:bg-slate-50 transition-colors cursor-pointer"
-                         onClick={() => setNewScheme({ id: s.id, pattern: s.pattern, rule: s.transformationRule })}
-                       >
+                       <tr key={s.id} className="hover:bg-slate-50 transition-colors">
                           <td className="px-4 py-4 font-mono font-bold text-blue-600">{s.id}</td>
                           <td className="px-4 py-4 font-arabic text-xl">{s.pattern}</td>
                           <td className="px-4 py-4 text-slate-500 text-sm">{s.transformationRule}</td>
+                          <td className="px-4 py-4">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => handleEditScheme(s)}
+                                className="px-3 py-1 text-xs rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200"
+                              >
+                                تعديل
+                              </button>
+                              <button
+                                onClick={() => handleDeleteScheme(s.id)}
+                                className="px-3 py-1 text-xs rounded-md bg-red-100 text-red-700 hover:bg-red-200"
+                              >
+                                حذف
+                              </button>
+                            </div>
+                          </td>
                        </tr>
                     ))}
                  </tbody>
@@ -411,7 +479,7 @@ const App: React.FC = () => {
                            key={i}
                            className="bg-white border border-slate-200 text-blue-600 px-2 py-1 rounded-md text-sm font-arabic"
                          >
-                           {dw.word}
+                           {dw.word} ({dw.scheme_id || dw.pattern || 'غير معروف'})
                          </span>
                        ))}
                      </div>
@@ -432,6 +500,58 @@ const App: React.FC = () => {
 
       {activeTab === TabType.VALIDATOR && (
         <div className="max-w-3xl mx-auto space-y-6" dir="rtl">
+           <div className="bg-white p-8 rounded-2xl shadow-md border border-slate-200">
+              <div className="text-center mb-6">
+                <History className="w-10 h-10 text-indigo-500 mx-auto mb-3" />
+                <h3 className="text-xl font-bold text-slate-800">سجل الجذر</h3>
+                <p className="text-slate-400 text-sm mt-1">أدخل الجذر لإرجاع كل الكلمات المولدة المخزنة في التاريخ</p>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-2 text-right">الجذر</label>
+                  <input
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-center font-arabic text-2xl outline-none"
+                    value={historyRoot}
+                    onChange={e => setHistoryRoot(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        handleHistoryByRoot();
+                      }
+                    }}
+                    maxLength={3}
+                    placeholder="مثال: كتب"
+                  />
+                </div>
+                <button
+                  onClick={handleHistoryByRoot}
+                  disabled={historyLoading}
+                  className="w-full py-4 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-all flex items-center justify-center gap-2 shadow-sm"
+                >
+                  {historyLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+                  <span>إظهار كل الكلمات المخزنة</span>
+                </button>
+              </div>
+
+              {historyByRoot && (
+                <div className="mt-6 border border-slate-200 rounded-xl p-4 bg-slate-50">
+                  <p className="text-sm text-slate-600 text-right mb-3">
+                    الجذر: <strong>{historyByRoot.root}</strong> • النوع: <strong>{historyByRoot.verb_type || 'غير معروف'}</strong>
+                  </p>
+                  <div className="flex flex-wrap gap-2 justify-end">
+                    {(historyByRoot.derivedWords || []).length > 0 ? (
+                      historyByRoot.derivedWords.map((dw, i) => (
+                        <span key={i} className="bg-white border border-slate-200 text-slate-700 px-3 py-1 rounded-md text-sm font-arabic">
+                          {dw.word} ({dw.scheme_id || dw.pattern || 'غير معروف'}) × {dw.frequency}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-slate-400 text-sm">لا توجد كلمات محفوظة لهذا الجذر.</span>
+                    )}
+                  </div>
+                </div>
+              )}
+           </div>
+
            <div className="bg-white p-8 rounded-2xl shadow-md border border-slate-200">
               <div className="text-center mb-8">
                 <SearchCheck className="w-12 h-12 text-blue-500 mx-auto mb-4" />

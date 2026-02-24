@@ -24,8 +24,8 @@ sahih_مفعول:
 # 2. مثال (first weak letter)
 # =====================================================
 
-# Drop initial weak letter after prefix
-mithal_يفعل:replace=و>;replace=ي>
+# Drop weak waw only after valid present prefixes
+mithal_يفعل:replace=يو>ي;replace=تو>ت;replace=نو>ن;replace=أو>أ
 mithal_أمر:replace=او>;replace=اي>
 
 mithal_فاعل:

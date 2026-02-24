@@ -6,8 +6,8 @@
   },
   {
     "id": "فعل",
-    "pattern": "فَعَلَ",
-    "transformationRule": "المصدر (Infinitive)"
+    "pattern": "فعل",
+    "transformationRule": "فعل (past)"
   },
   {
     "id": "أمر",
@@ -18,6 +18,11 @@
     "id": "يفعل",
     "pattern": "يَفْعَلُ",
     "transformationRule": "صيغة المضارع (Present)"
+  },
+  {
+    "id": "افتعل",
+    "pattern": "افتعل",
+    "transformationRule": ""
   },
   {
     "id": "فاعل",

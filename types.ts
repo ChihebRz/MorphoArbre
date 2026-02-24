@@ -3,6 +3,8 @@ export interface DerivedWord {
   word: string;
   frequency: number;
   timestamp?: number;
+  scheme_id?: string;
+  pattern?: string;
 }
 
 export interface RootNodeData {

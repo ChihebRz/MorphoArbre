@@ -27,8 +27,8 @@ const Layout: React.FC<LayoutProps> = ({ activeTab, setActiveTab, children }) =>
              <GraduationCap className="text-white w-6 h-6" />
           </div>
           <div>
-            <h1 className="font-bold text-lg tracking-tight">ISI Project</h1>
-            <p className="text-xs text-slate-400">Algorithmique 2026</p>
+            <h1 className="font-bold text-lg tracking-tight">MorphoArbre</h1>
+            <p className="text-xs text-slate-400">Algorithmique</p>
           </div>
         </div>
         
@@ -50,9 +50,8 @@ const Layout: React.FC<LayoutProps> = ({ activeTab, setActiveTab, children }) =>
         </nav>
         
         <div className="p-6 border-t border-slate-800 text-xs text-slate-500">
-          <p>Enseignants :</p>
-          <p>N. Ben Hariz, S. Bahroun</p>
-          <p className="mt-2 opacity-50">© 2025 GLSI 1ING</p>
+          <p>Developed by:</p>
+          <p>Chiheb Rezgui, Oussama Dallagi</p> 
         </div>
       </aside>
 
