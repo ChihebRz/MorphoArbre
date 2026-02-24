@@ -178,48 +178,69 @@ const App: React.FC = () => {
       
       {activeTab === TabType.DASHBOARD && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4" dir="rtl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <div className="flex items-center justify-between mb-4">
-                <div className="bg-emerald-100 p-3 rounded-xl text-emerald-600"><Database className="w-6 h-6" /></div>
-                {loading && <Loader2 className="w-4 h-4 animate-spin text-slate-300" />}
-              </div>
-              <h3 className="text-3xl font-bold text-slate-800">{roots.length}</h3>
-              <p className="text-slate-500 text-sm mt-1">الجذور (AVL Python)</p>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <div className="flex items-center justify-between mb-4">
-                <div className="bg-indigo-100 p-3 rounded-xl text-indigo-600"><Settings2 className="w-6 h-6" /></div>
-              </div>
-              <h3 className="text-3xl font-bold text-slate-800">{schemes.length}</h3>
-              <p className="text-slate-500 text-sm mt-1">الأوزان (Hash Python)</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-8 text-white shadow-xl">
-              <div className="space-y-2 mb-6">
-                <h2 className="text-2xl font-bold">محرك التشكيل الصرفي</h2>
-                <p className="opacity-90">خادم Python يدير الخوارزميات المعقدة والتحويلات الصرفية.</p>
-              </div>
-              <button 
-                onClick={() => setActiveTab(TabType.VALIDATOR)}
-                className="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-slate-50 transition-colors"
-              >
-                اختبر الأفعال ← 
-              </button>
-            </div>
-
-            <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-8 text-white shadow-xl">
-              <div className="space-y-2 mb-6">
-                <h2 className="text-2xl font-bold">أنواع الأفعال الضعيفة</h2>
-                <p className="opacity-90">دعم كامل لاكتشاف الأفعال والقواعس الصرفية.</p>
+          <div className="flex gap-6">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between h-80 flex-1">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="bg-emerald-100 p-3 rounded-xl text-emerald-600"><Database className="w-6 h-6" /></div>
+                  {loading && <Loader2 className="w-4 h-4 animate-spin text-slate-300" />}
+                </div>
+                <h3 className="text-4xl font-bold text-slate-800">{roots.length}</h3>
+                <p className="text-slate-500 text-lg mt-2">الجذور (AVL Python)</p>
               </div>
               <button 
                 onClick={() => setActiveTab(TabType.ROOTS)}
-                className="bg-white text-emerald-600 px-6 py-3 rounded-xl font-bold hover:bg-slate-50 transition-colors"
+                className="bg-white/30 text-emerald-700 px-6 py-3 rounded-xl font-bold hover:bg-white/40 transition-colors w-full backdrop-blur-md border border-white/50"
               >
-                الجذور والأنواع ←
+                الذهاب إلى الصفحة ←
+              </button>
+            </div>
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between h-80 flex-1">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="bg-indigo-100 p-3 rounded-xl text-indigo-600"><Settings2 className="w-6 h-6" /></div>
+                </div>
+                <h3 className="text-4xl font-bold text-slate-800">{schemes.length}</h3>
+                <p className="text-slate-500 text-lg mt-2">الأوزان (Hash Python)</p>
+              </div>
+              <button 
+                onClick={() => setActiveTab(TabType.SCHEMES)}
+                className="bg-white/30 text-indigo-700 px-6 py-3 rounded-xl font-bold hover:bg-white/40 transition-colors w-full backdrop-blur-md border border-white/50"
+              >
+                الذهاب إلى الصفحة ←
+              </button>
+            </div>
+          </div>
+
+          <div className="flex gap-6">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between h-80 flex-1">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="bg-blue-100 p-3 rounded-xl text-blue-600"><Wand2 className="w-6 h-6" /></div>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-800">المولد</h3>
+                <p className="text-slate-500 text-lg mt-2">توليد الكلمات (Générateur)</p>
+              </div>
+              <button 
+                onClick={() => setActiveTab(TabType.GENERATOR)}
+                className="bg-white/30 text-blue-700 px-6 py-3 rounded-xl font-bold hover:bg-white/40 transition-colors w-full backdrop-blur-md border border-white/50"
+              >
+                الذهاب إلى الصفحة ←
+              </button>
+            </div>
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between h-80 flex-1">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="bg-purple-100 p-3 rounded-xl text-purple-600"><SearchCheck className="w-6 h-6" /></div>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-800">التحقق</h3>
+                <p className="text-slate-500 text-lg mt-2">التحقق من الكلمات (Validation)</p>
+              </div>
+              <button 
+                onClick={() => setActiveTab(TabType.VALIDATOR)}
+                className="bg-white/30 text-purple-700 px-6 py-3 rounded-xl font-bold hover:bg-white/40 transition-colors w-full backdrop-blur-md border border-white/50"
+              >
+                الذهاب إلى الصفحة ←
               </button>
             </div>
           </div>

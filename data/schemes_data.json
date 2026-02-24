@@ -20,11 +20,6 @@
     "transformationRule": "صيغة المضارع (Present)"
   },
   {
-    "id": "افتعل",
-    "pattern": "افتعل",
-    "transformationRule": ""
-  },
-  {
     "id": "فاعل",
     "pattern": "فَاعِل",
     "transformationRule": "اسم الفاعل (Agent Noun)"

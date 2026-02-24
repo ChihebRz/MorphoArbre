@@ -23,7 +23,7 @@
       },
       {
         "word": "آخذ",
-        "frequency": 1,
+        "frequency": 2,
         "scheme_id": "فاعل",
         "pattern": "فَاعِل"
       },
@@ -40,38 +40,14 @@
     "verb_type": "مهموز الفاء",
     "derived_words": [
       {
-        "word": "اكل",
-        "frequency": 12,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "ياكل",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "آكل",
         "frequency": 11,
         "scheme_id": "فعل",
         "pattern": "فَعَلَ"
       },
       {
-        "word": "ماكول",
-        "frequency": 4,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "ااكل",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "كل",
-        "frequency": 11,
+        "frequency": 12,
         "scheme_id": "أمر",
         "pattern": "افْعَل"
       },
@@ -88,100 +64,10 @@
         "pattern": "يَفْعَلُ"
       },
       {
-        "word": "ماأول",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "مأكول",
         "frequency": 2,
         "scheme_id": "مفعول",
         "pattern": "مَفْعُول"
-      }
-    ]
-  },
-  {
-    "root": "باع",
-    "verb_type": "أجوف",
-    "derived_words": [
-      {
-        "word": "بع",
-        "frequency": 12,
-        "scheme_id": "أمر",
-        "pattern": "افْعَل"
-      },
-      {
-        "word": "اباع",
-        "frequency": 9,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "ااع",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "ابع",
-        "frequency": 4,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "باع",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "يباع",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "بائع",
-        "frequency": 6,
-        "scheme_id": "فاعل",
-        "pattern": "فَاعِل"
-      },
-      {
-        "word": "مباوع",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "بااع",
-        "frequency": 4,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مبوع",
-        "frequency": 6,
-        "scheme_id": "مفعول",
-        "pattern": "مَفْعُول"
-      },
-      {
-        "word": "يبوع",
-        "frequency": 3,
-        "scheme_id": "يفعل",
-        "pattern": "يَفْعَلُ"
-      },
-      {
-        "word": "مبووع",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "بوع",
-        "frequency": 2,
-        "scheme_id": "فعل",
-        "pattern": "فَعَلَ"
       }
     ]
   },
@@ -208,40 +94,10 @@
         "pattern": "افْعَل"
       },
       {
-        "word": "باق",
-        "frequency": 10,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مبقوي",
-        "frequency": 9,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "يبقي",
         "frequency": 5,
         "scheme_id": "يفعل",
         "pattern": "يَفْعَلُ"
-      },
-      {
-        "word": "ابقي",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "يبقو",
-        "frequency": 4,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "با=",
-        "frequency": 5,
-        "scheme_id": null,
-        "pattern": null
       },
       {
         "word": "مبقي",
@@ -260,36 +116,6 @@
         "frequency": 1,
         "scheme_id": "استفعل",
         "pattern": "استفعل"
-      }
-    ]
-  },
-  {
-    "root": "بيع",
-    "verb_type": "أجوف يائي",
-    "derived_words": [
-      {
-        "word": "مبيع",
-        "frequency": 1,
-        "scheme_id": "مفعول",
-        "pattern": "مَفْعُول"
-      },
-      {
-        "word": "بائع",
-        "frequency": 1,
-        "scheme_id": "فاعل",
-        "pattern": "فَاعِل"
-      },
-      {
-        "word": "ع",
-        "frequency": 1,
-        "scheme_id": "أمر",
-        "pattern": "افْعَل"
-      },
-      {
-        "word": "يبيع",
-        "frequency": 1,
-        "scheme_id": "يفعل",
-        "pattern": "يَفْعَلُ"
       }
     ]
   },
@@ -323,7 +149,7 @@
       },
       {
         "word": "مخروج",
-        "frequency": 4,
+        "frequency": 5,
         "scheme_id": "مفعول",
         "pattern": "مَفْعُول"
       },
@@ -430,58 +256,10 @@
         "pattern": "فَعَلَ"
       },
       {
-        "word": "يدعو",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "ادع",
         "frequency": 6,
         "scheme_id": "أمر",
         "pattern": "افْعَل"
-      },
-      {
-        "word": "داع",
-        "frequency": 5,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مدعوو",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مدعوا",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "دا=ٍ",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "دا=",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "داعا",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مدعا",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
       },
       {
         "word": "مدعو",
@@ -525,18 +303,6 @@
         "pattern": "افْعَل"
       },
       {
-        "word": "را=ٍ",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مرموي",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "مرمي",
         "frequency": 2,
         "scheme_id": "مفعول",
@@ -567,52 +333,10 @@
     "verb_type": "مهموز العين",
     "derived_words": [
       {
-        "word": "اسال",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "سال",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "يسال",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "ساال",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مساول",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "ساائ",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "سأل",
         "frequency": 5,
         "scheme_id": "فعل",
         "pattern": "فَعَلَ"
-      },
-      {
-        "word": "ساأل",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
       },
       {
         "word": "سائل",
@@ -645,18 +369,6 @@
     "verb_type": "لفيف مقرون",
     "derived_words": [
       {
-        "word": "ط",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مطووي",
-        "frequency": 5,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "طوي",
         "frequency": 6,
         "scheme_id": "فعل",
@@ -681,22 +393,10 @@
         "pattern": "افْعَل"
       },
       {
-        "word": "ف",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "مطوّي",
         "frequency": 5,
         "scheme_id": "مفعول",
         "pattern": "مَفْعُول"
-      },
-      {
-        "word": "طاو=",
-        "frequency": 16,
-        "scheme_id": null,
-        "pattern": null
       }
     ]
   },
@@ -704,12 +404,6 @@
     "root": "قال",
     "verb_type": "أجوف",
     "derived_words": [
-      {
-        "word": "قال",
-        "frequency": 8,
-        "scheme_id": null,
-        "pattern": null
-      },
       {
         "word": "يقول",
         "frequency": 7,
@@ -733,48 +427,6 @@
         "frequency": 13,
         "scheme_id": "مفعول",
         "pattern": "مَفْعُول"
-      },
-      {
-        "word": "يقال",
-        "frequency": 6,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "اقال",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "ال",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "اقل",
-        "frequency": 6,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مقاول",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "قاال",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "مقوول",
-        "frequency": 5,
-        "scheme_id": null,
-        "pattern": null
       },
       {
         "word": "قول",
@@ -855,12 +507,6 @@
         "pattern": "يَفْعَلُ"
       },
       {
-        "word": "امدد",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "مدد",
         "frequency": 4,
         "scheme_id": "فعل",
@@ -878,12 +524,6 @@
     "root": "ملأ",
     "verb_type": "مهموز اللام",
     "derived_words": [
-      {
-        "word": "املا",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
       {
         "word": "مالأ",
         "frequency": 2,
@@ -927,24 +567,6 @@
         "pattern": "فَعَلَ"
       },
       {
-        "word": "يوجد",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "اوجد",
-        "frequency": 2,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "اجد",
-        "frequency": 5,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "موجود",
         "frequency": 9,
         "scheme_id": "مفعول",
@@ -975,12 +597,6 @@
     "verb_type": "لفيف مفروق",
     "derived_words": [
       {
-        "word": "واق",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "وقي",
         "frequency": 4,
         "scheme_id": "فعل",
@@ -993,28 +609,10 @@
         "pattern": "يَفْعَلُ"
       },
       {
-        "word": "ف",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
         "word": "موقوي",
         "frequency": 6,
         "scheme_id": "مفعول",
         "pattern": "مَفْعُول"
-      },
-      {
-        "word": "وا=",
-        "frequency": 1,
-        "scheme_id": null,
-        "pattern": null
-      },
-      {
-        "word": "وا",
-        "frequency": 3,
-        "scheme_id": null,
-        "pattern": null
       },
       {
         "word": "واقٍ",

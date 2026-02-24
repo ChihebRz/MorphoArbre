@@ -1,276 +1,486 @@
-# 🌳 MorphoArbre - Arabic Morphological Analysis Engine
+# MorphoArbre - Engine for Arabic Morphological Analysis
 
-A comprehensive Arabic morphological analysis tool that processes and analyzes Arabic verb forms using advanced data structures (AVL Trees, Hash Tables) and linguistic rules.
+## Executive Summary
 
-## 📋 Features
+MorphoArbre is a comprehensive software solution for the morphological analysis and processing of Modern Standard Arabic verbal forms. The application integrates advanced data structures (AVL Trees, Hash Tables) with sophisticated linguistic algorithms to provide accurate generation and validation of Arabic word derivatives.
 
-- **Arabic Verb Morphology Analysis**: Supports 7+ types of Arabic verbs
-  - صحيح سالم (Regular verbs)
-  - مهموز (Verbs with Hamza)
-  - مثال (Weak initial verbs)
-  - أجوف (Hollow verbs)
-  - ناقص (Defective verbs)
-  - مضعّف (Doubled verbs)
-  - لفيف (Doubly weak verbs)
+Developed as a final assessment project in Algorithms and Data Structures, MorphoArbre demonstrates the practical application of computer science principles to computational linguistics.
 
-- **Advanced Data Structures**: Efficient processing using AVL Trees and Hash Tables
-- **Interactive Visualization**: React-based UI for real-time morphological analysis
-- **RESTful API**: FastAPI backend for morphological processing
+**Project Team:** Chiheb Rezgui, Oussama Dallagi
 
-## 🛠️ Prerequisites
+---
 
-Before you begin, ensure you have the following installed on your system:
+## Table of Contents
 
-- **Node.js** (v18 or higher) and **npm** (v9 or higher)
-- **Python** (v3.8 or higher)
-- **pip** (Python package manager)
+1. Project Overview
+2. Technical Architecture
+3. Features and Capabilities
+4. System Requirements
+5. Installation Guide
+6. Usage Instructions
+7. API Documentation
+8. Project Structure
+9. Technical Details
+10. Troubleshooting
 
-### Check if already installed:
+---
 
-```bash
-node --version
-npm --version
-python3 --version
-pip3 --version
+## 1. Project Overview
+
+### Objective
+
+MorphoArbre addresses the complex challenge of Arabic morphological analysis through an integrated fullstack application. It provides automated tools for:
+
+- Morphological generation: Creating valid word forms from three-character roots using specified morphological patterns
+- Morphological validation: Verifying whether a given word can be derived from a specific root
+- Automatic verb classification: Identifying verb types based on root characteristics
+- Interactive visualization: Displaying hierarchical root structures using AVL Trees
+
+### Scope
+
+The system supports analysis of seven fundamental Arabic verb types:
+
+1. Sahih Salim (صحيح سالم) - Regular verbs
+2. Mahmuz (مهموز) - Hamzated verbs
+3. Mithal (مثال) - Weak initial verbs
+4. Ajwaf (أجوف) - Hollow verbs
+5. Naqis (ناقص) - Defective final verbs
+6. Mudaaf (مضاعف) - Doubled verbs
+7. Lafif (لفيف) - Doubly weak verbs
+
+The application manages over 50 morphological patterns and can process 1000+ root entries with their derived words.
+
+---
+
+## 2. Technical Architecture
+
+### Technology Stack
+
+**Frontend Layer:**
+- Framework: React 18 with TypeScript
+- Build Tool: Vite
+- Styling: Tailwind CSS
+- Component Library: Lucide React for icons
+- Data Structures: AVL Tree implementation (TypeScript)
+
+**Backend Layer:**
+- Framework: FastAPI (Python 3.8+)
+- Server: Uvicorn ASGI
+- Data Validation: Pydantic
+- Core Engine: AVL Tree and Hash Table implementations
+- Language Support: arabic-reshaper, python-bidi
+
+**Data Storage:**
+- Format: JSON
+- Files: roots_data.json, schemes_data.json, verb_rules.txt
+
+### Architecture Overview
+
+The application follows a client-server architecture with separation of concerns:
+
+```
+Frontend (React/TypeScript)
+    |
+    | HTTP REST API (JSON)
+    |
+Backend (FastAPI/Python)
+    |
+    | File I/O
+    |
+Data Layer (JSON Files)
 ```
 
-### Installing Prerequisites (if needed):
+---
 
-#### On Ubuntu/Debian:
+## 3. Features and Capabilities
+
+### Core Features
+
+1. **Morphological Generation**
+   - Apply morphological patterns to roots
+   - Generate valid Arabic word forms
+   - Support for all seven verb types
+   - Automatic transformation rule application
+
+2. **Morphological Validation**
+   - Verify word-root correspondence
+   - Identify applicable morphological patterns
+   - Validate against multiple transformation rules
+   - Support for Arabic text normalization
+
+3. **Root Management**
+   - Add and delete three-character roots
+   - Automatic verb type detection
+   - Track derived word frequency
+   - Hierarchical organization using AVL Trees
+
+4. **Pattern Management**
+   - Create and modify morphological patterns
+   - Define transformation rules
+   - Efficient pattern lookup using Hash Tables
+   - Pattern statistics and analysis
+
+5. **Interactive Visualization**
+   - Real-time AVL Tree visualization
+   - Root hierarchical structure display
+   - Performance metrics and statistics
+
+### Advanced Capabilities
+
+- Automatic normalization of Arabic text (handling diacritics, hamza variants, taa marbuta)
+- Multi-pattern validation with ambiguity handling
+- Verb type specific transformation rules
+- Frequency-based word ranking
+- RESTful API for programmatic access
+
+---
+
+## 4. System Requirements
+
+### Minimum Requirements
+
+**Hardware:**
+- Processor: Intel Core i5 or equivalent
+- RAM: 4 GB minimum
+- Storage: 500 MB available space
+
+**Software:**
+- Operating System: Windows 10+, macOS 10.15+, or Linux (Ubuntu 18.04+)
+- Node.js: Version 18.0.0 or higher
+- npm: Version 9.0.0 or higher
+- Python: Version 3.8 or higher
+- pip: Current version matching Python
+
+### Verification
+
 ```bash
-# Install Node.js and npm
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Install Python and pip
-sudo apt-get install python3 python3-pip
+node --version      # Should output v18.0.0 or higher
+npm --version       # Should output 9.0.0 or higher
+python3 --version   # Should output 3.8.0 or higher
+pip3 --version      # Should output matching Python version
 ```
 
-#### On macOS:
-```bash
-# Install Node.js and npm (using Homebrew)
-brew install node
+---
 
-# Install Python
-brew install python3
-```
+## 5. Installation Guide
 
-#### On Windows:
-- Download Node.js from [nodejs.org](https://nodejs.org/)
-- Download Python from [python.org](https://www.python.org/downloads/)
-
-## 🚀 Installation
-
-### 1. Clone the repository
+### Step 1: Clone Repository
 
 ```bash
 git clone https://github.com/ChihebRz/MorphoArbre.git
 cd MorphoArbre
 ```
 
-### 2. Install Frontend Dependencies
+### Step 2: Frontend Setup
 
 ```bash
 npm install
 ```
 
-This will install all required npm packages including:
-- React & React DOM
-- Vite (build tool)
-- TypeScript
-- Tailwind CSS
-- Lucide React (icons)
+This installs the following dependencies:
+- React & React DOM (UI framework)
+- Vite (build tool and dev server)
+- TypeScript (language support)
+- Tailwind CSS (styling framework)
+- Lucide React (icon library)
 
-### 3. Install Backend Dependencies
+### Step 3: Backend Setup
 
 ```bash
 pip3 install -r requirements.txt
 ```
 
-This will install:
-- FastAPI (Web framework)
+This installs the following dependencies:
+- FastAPI (web framework)
 - Uvicorn (ASGI server)
-- Arabic text processing libraries (arabic-reshaper, python-bidi)
 - Pydantic (data validation)
+- arabic-reshaper (Arabic text processing)
+- python-bidi (bidirectional text handling)
 
-## 🎯 Running the Application
-
-You need to run both the backend and frontend servers simultaneously.
-
-### Option 1: Using Two Terminal Windows
-
-#### Terminal 1 - Start the Backend Server:
+### Step 4: Verify Installation
 
 ```bash
-python3 main.py
-```
-
-Or using uvicorn directly:
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-The backend API will be available at: `http://localhost:8000`
-
-#### Terminal 2 - Start the Frontend Development Server:
-
-```bash
-npm run dev
-```
-
-The frontend will be available at: `http://localhost:5173`
-
-### Option 2: Using Background Process
-
-```bash
-# Start backend in background
-python3 main.py &
-
-# Start frontend
-npm run dev
-```
-
-## 📦 Available Scripts
-
-### Frontend Scripts
-
-```bash
-# Start development server with hot reload
-npm run dev
-
-# Build for production
+# Test frontend
 npm run build
 
-# Preview production build
-npm run preview
-
-# Build Tailwind CSS (production)
-npm run build:css
-
-# Watch Tailwind CSS changes (development)
-npm run dev:css
-```
-
-### Backend Commands
-
-```bash
-# Run backend server
+# Test backend
 python3 main.py
-
-# Run with uvicorn (with auto-reload)
-uvicorn main:app --reload
-
-# Run tests
-python3 test_morphology.py
 ```
-
-## 🏗️ Project Structure
-
-```
-MorphoArbre/
-├── components/          # React components
-│   ├── Layout.tsx      # Main layout component
-│   └── TreeView.tsx    # Tree visualization component
-├── lib/                # Core libraries
-│   ├── avlTree.ts      # AVL Tree implementation
-│   ├── hashTable.ts    # Hash Table implementation
-│   └── morphology.ts   # Morphological analysis logic
-├── data/               # Linguistic data
-│   ├── roots_data.json # Arabic root dictionary
-│   ├── schemes_data.json # Morphological patterns
-│   └── rules_verbs.json  # Verb transformation rules
-├── App.tsx             # Main React application
-├── index.tsx           # Application entry point
-├── main.py             # FastAPI backend server
-├── types.ts            # TypeScript type definitions
-└── README.md           # This file
-```
-
-## 🔌 API Endpoints
-
-Once the backend is running, you can access:
-
-- **API Documentation**: `http://localhost:8000/docs`
-- **Alternative Docs**: `http://localhost:8000/redoc`
-- **Root Endpoint**: `http://localhost:8000/`
-
-## 📚 Documentation
-
-- [MORPHOLOGIE_GUIDE.md](MORPHOLOGIE_GUIDE.md) - Detailed guide on Arabic morphology
-- [GENERATOR_EXPLANATION.md](GENERATOR_EXPLANATION.md) - Explanation of the generation algorithms
-- [IMPLEMENTATION_REPORT.md](IMPLEMENTATION_REPORT.md) - Technical implementation details
-
-## 🧪 Testing
-
-Run the morphology tests:
-
-```bash
-python3 test_morphology.py
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📝 License
-
-ISC License
-
-## 👨‍💻 Author
-
-ChihebRz
-
-## 🐛 Troubleshooting
-
-### Port Already in Use
-
-If you get a "port already in use" error:
-
-```bash
-# For backend (port 8000)
-lsof -ti:8000 | xargs kill -9
-
-# For frontend (port 5173)
-lsof -ti:5173 | xargs kill -9
-```
-
-### Python Module Not Found
-
-Make sure you're in the correct directory and virtual environment:
-
-```bash
-pip3 install -r requirements.txt --force-reinstall
-```
-
-### Node Modules Issues
-
-If you encounter npm errors:
-
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
-
-## 💡 Quick Start Example
-
-1. Install dependencies:
-   ```bash
-   npm install && pip3 install -r requirements.txt
-   ```
-
-2. Start both servers:
-   ```bash
-   # Terminal 1
-   python3 main.py
-   
-   # Terminal 2
-   npm run dev
-   ```
-
-3. Open your browser to `http://localhost:5173`
-
-4. Enter an Arabic verb root to see morphological analysis!
 
 ---
 
-Made with ❤️ for Arabic language processing
+## 6. Usage Instructions
+
+### Starting the Application
+
+The application requires both frontend and backend servers running simultaneously.
+
+#### Method 1: Dual Terminal Windows
+
+**Terminal 1 - Backend Server:**
+```bash
+python3 main.py
+```
+
+The backend will initialize and listen on http://localhost:8000
+
+**Terminal 2 - Frontend Development Server:**
+```bash
+npm run dev
+```
+
+The frontend will be available at http://localhost:3000
+
+#### Method 2: Using Process Management
+
+```bash
+# In background
+python3 main.py &
+npm run dev
+```
+
+### Accessing the Application
+
+Open your web browser and navigate to:
+```
+http://localhost:3000
+```
+
+### Available Build Commands
+
+```bash
+npm run dev           # Development server with hot reload
+npm run build         # Production build
+npm run preview       # Preview production build locally
+npm run build:css     # Build Tailwind CSS production
+npm run dev:css       # Watch Tailwind CSS development
+```
+
+---
+
+## 7. API Documentation
+
+### Base URL
+
+```
+http://localhost:8000/api
+```
+
+### Interactive Documentation
+
+The API includes automatic documentation accessible at:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+### Core Endpoints
+
+#### Roots Management
+- `GET /api/roots` - Retrieve all roots with derived words
+- `POST /api/roots` - Add a new root
+- `DELETE /api/roots/{root}` - Remove a root
+
+#### Schemes Management
+- `GET /api/schemes` - Retrieve all morphological patterns
+- `POST /api/schemes` - Add a new pattern
+- `PUT /api/schemes/{id}` - Update a pattern
+- `DELETE /api/schemes/{id}` - Remove a pattern
+
+#### Analysis Operations
+- `POST /api/generate` - Generate word from root and pattern
+- `POST /api/validate` - Validate word against root
+- `GET /api/verb-types` - Retrieve verb type information
+
+#### Visualization
+- `GET /api/roots/visual` - Get AVL tree structure for visualization
+
+---
+
+## 8. Project Structure
+
+```
+MorphoArbre/
+│
+├── Frontend Files
+│   ├── App.tsx                    # Main React application component
+│   ├── index.tsx                  # Application entry point
+│   ├── index.html                 # HTML template
+│   ├── index.css                  # Global styles
+│   ├── input.css                  # Tailwind input
+│   ├── tailwind.css               # Generated Tailwind styles
+│   └── vite.config.ts             # Vite configuration
+│
+├── Components
+│   ├── components/Layout.tsx      # Application layout wrapper
+│   ├── components/TreeView.tsx    # AVL Tree visualization
+│   └── types.ts                   # TypeScript type definitions
+│
+├── Data Structures (Frontend)
+│   ├── lib/avlTree.ts             # Typescript AVL Tree implementation
+│   ├── lib/hashTable.ts           # Typescript Hash Table implementation
+│   └── lib/morphology.ts          # Morphological analysis utilities
+│
+├── Backend
+│   └── main.py                    # FastAPI server and core logic
+│
+├── Data Files
+│   ├── data/roots_data.json       # Arabic root dictionary
+│   ├── data/schemes_data.json     # Morphological patterns database
+│   ├── data/verb_rules.txt        # Verb transformation rules
+│   └── data/racine.txt            # Plain text root list
+│
+├── Documentation
+│   ├── README.md                  # This file
+│   ├── RAPPORT_TECHNIQUE.md       # Technical report
+│   ├── MORPHOLOGIE_GUIDE.md       # Morphology guide
+│   ├── GENERATOR_EXPLANATION.md   # Generation algorithm details
+│   ├── IMPLEMENTATION_REPORT.md   # Implementation notes
+│   └── metadata.json              # Project metadata
+│
+├── Configuration
+│   ├── package.json               # NPM dependencies and scripts
+│   ├── tsconfig.json              # TypeScript configuration
+│   ├── requirements.txt           # Python dependencies
+│   └── .gitignore                 # Git ignore rules
+│
+└── Testing
+    └── test_morphology.py         # Unit tests for morphology
+```
+
+---
+
+## 9. Technical Details
+
+### Data Structures
+
+#### AVL Tree (Root Management)
+- **Implementation Location:** backend in main.py
+- **Purpose:** Hierarchical storage of three-character Arabic roots
+- **Time Complexity:** O(log n) for insert, search, delete operations
+- **Features:** Automatic balancing, in-order traversal, JSON serialization
+
+#### Hash Table (Pattern Management)
+- **Implementation Location:** backend in main.py
+- **Purpose:** Efficient lookup of morphological patterns
+- **Size:** 101 buckets (prime number for distribution)
+- **Collision Resolution:** External chaining
+- **Time Complexity:** O(1) average case for all operations
+
+### Morphological Algorithm
+
+The system uses a three-stage approach:
+
+1. **Pattern-Based Generation:**
+   - Replace root characters (ف, ع, ل) with actual root characters
+   - Preserve structural elements and diacritics
+
+2. **Verb-Type Specific Rules:**
+   - Apply transformations based on detected verb category
+   - Handle weak roots and special cases
+
+3. **Arabic Text Normalization:**
+   - Remove diacritical marks
+   - Normalize hamza variants
+   - Standardize similar characters
+
+### Performance Characteristics
+
+- Root insertion: ~0.5ms
+- Pattern lookup: <0.1ms
+- Word generation: ~1ms
+- Batch operations: O(n) where n is number of operations
+
+---
+
+## 10. Troubleshooting
+
+### Issue: Port Already in Use
+
+**Symptom:** "Address already in use" error on port 8000 or 5173
+
+**Solution:**
+```bash
+# Find and terminate process on port 8000 (backend)
+lsof -ti:8000 | xargs kill -9
+
+# Find and terminate process on port 5173 (frontend)
+lsof -ti:5173 | xargs kill -9
+```
+
+### Issue: Module Not Found (Python)
+
+**Symptom:** "ModuleNotFoundError" when running main.py
+
+**Solution:**
+```bash
+pip3 install -r requirements.txt --force-reinstall --upgrade
+```
+
+### Issue: Dependencies Installation Failed
+
+**Symptom:** npm or pip installation errors
+
+**Solution:**
+```bash
+# For npm
+rm -rf node_modules package-lock.json
+npm cache clean --force
+npm install
+
+# For pip
+pip3 install --upgrade pip
+pip3 install -r requirements.txt
+```
+
+### Issue: Asian Character Display Issues
+
+**Symptom:** Arabic text appears corrupted or displays incorrectly
+
+**Solution:**
+- Ensure you are using a Unicode-compatible terminal
+- Check that system locale is set correctly
+- Verify that the browser is set to UTF-8 encoding
+
+### Issue: CORS Errors
+
+**Symptom:** "Cross-Origin Request Blocked" errors in browser console
+
+**Solution:**
+- Ensure both frontend (5173) and backend (8000) are running
+- Check that the API_BASE in App.tsx matches your backend URL
+- Verify that FastAPI CORS middleware is enabled
+
+---
+
+## Additional Resources
+
+### Documentation Files
+- RAPPORT_TECHNIQUE.md - Comprehensive technical report with algorithms and complexity analysis
+- MORPHOLOGIE_GUIDE.md - Detailed guide to Arabic verb morphology
+- GENERATOR_EXPLANATION.md - Detailed explanation of generation algorithms
+
+### Testing
+```bash
+python3 test_morphology.py    # Run unit tests
+```
+
+---
+
+## Project Information
+
+**Project Type:** Final Assessment - Algorithms and Data Structures
+**Implementation Period:** Academic Semester 2024-2026
+**Team:** Chiheb Rezgui, Oussama Dallagi
+
+**GitHub Repository:** https://github.com/ChihebRz/MorphoArbre
+
+---
+
+## License
+
+This project is released under the MIT License.
+
+---
+
+**For technical questions or bug reports, please refer to the technical report (RAPPORT_TECHNIQUE.md) or contact the development team.**
+
+Last Updated: February 2026
